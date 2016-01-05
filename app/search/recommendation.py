@@ -1,8 +1,8 @@
-from memcached import memcached
-from memorize import memorize
-from search.classification import CLASSIFIERS
-from search.query.yahoo import YahooQueryEngine
-from search.suggest.bing import BingSuggestionEngine
+from app.memcached import memcached
+from app.memorize import memorize
+from app.search.classification import CLASSIFIERS
+from app.search.query.yahoo import YahooQueryEngine
+from app.search.suggest.bing import BingSuggestionEngine
 
 
 class SearchRecommendation(object):

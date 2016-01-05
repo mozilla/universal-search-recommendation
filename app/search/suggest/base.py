@@ -1,5 +1,5 @@
-from memorize import memorize
-from memcached import memcached
+from app.memorize import memorize
+from app.memcached import memcached
 
 
 class BaseSuggestionEngine(object):

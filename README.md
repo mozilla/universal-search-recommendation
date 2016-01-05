@@ -120,14 +120,14 @@ To install:
 git clone https://github.com/mozilla/universal-search-recommendation.git
 cd universal-search-recommendation
 mkvirtualenv universal-search-recommendation  # You may need to set --python to point to the python 3.5 executable.
-python setup.py install
+pip install -r requirements.txt
 ```
 
 To run the server:
 
 ```sh
 source .env
-python app/main.py
+python server.py
 ```
 
 

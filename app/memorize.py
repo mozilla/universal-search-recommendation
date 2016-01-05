@@ -4,7 +4,7 @@ import pickle
 
 from wrapt import ObjectProxy
 
-from memcached import memcached
+from app.memcached import memcached
 
 
 class CacheMissError(RuntimeError):

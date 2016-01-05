@@ -4,11 +4,10 @@ from urllib.parse import quote_plus
 import oauth2
 import requests
 
-import conf
-from memorize import memorize
-from memcached import memcached
-
-from .base import BaseQueryEngine
+from app import conf
+from app.memorize import memorize
+from app.memcached import memcached
+from app.search.query.base import BaseQueryEngine
 
 
 class YahooQueryEngine(BaseQueryEngine):

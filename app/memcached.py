@@ -1,6 +1,6 @@
 from pylibmc import Client
 
-import conf
+from app import conf
 
 
 memcached = Client([conf.MEMCACHED_HOST])

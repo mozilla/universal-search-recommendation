@@ -1,9 +1,8 @@
 import requests
 
-from memorize import memorize
-from memcached import memcached
-
-from .base import BaseSuggestionEngine
+from app.memorize import memorize
+from app.memcached import memcached
+from app.search.suggest.base import BaseSuggestionEngine
 
 
 class BingSuggestionEngine(BaseSuggestionEngine):

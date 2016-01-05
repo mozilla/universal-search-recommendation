@@ -2,10 +2,9 @@ from urllib.parse import urlencode, urlparse, urlunparse
 
 import requests
 
-from memorize import memorize
-from memcached import memcached
-
-from .base import BaseClassifier
+from app.memorize import memorize
+from app.memcached import memcached
+from app.search.classification.base import BaseClassifier
 
 
 class WikipediaClassifier(BaseClassifier):
