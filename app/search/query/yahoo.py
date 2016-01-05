@@ -5,8 +5,6 @@ import oauth2
 import requests
 
 import conf
-from memorize import memorize
-from memcached import memcached
 
 from .base import BaseQueryEngine
 

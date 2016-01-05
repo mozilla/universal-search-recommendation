@@ -1,8 +1,5 @@
 import requests
 
-from memorize import memorize
-from memcached import memcached
-
 from .base import BaseSuggestionEngine
 
 
