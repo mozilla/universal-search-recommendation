@@ -12,6 +12,7 @@ from memorize import CacheMissError
 sys.path.append(os.path.dirname(__file__))
 app = Flask(__name__)
 
+
 @app.route('/')
 def main():
     q = request.args.get('q')

@@ -24,7 +24,7 @@ class YahooQueryEngine(BaseQueryEngine):
             'oauth_nonce': oauth2.generate_nonce(),
             'oauth_timestamp': str(int(time.time())),
             'oauth_version': '1.0',
-            'q' : quote_plus(query)
+            'q': quote_plus(query)
         }
         request = oauth2.Request(method='GET', url=url, parameters=params)
         request.sign_request(oauth2.SignatureMethod_HMAC_SHA1(),

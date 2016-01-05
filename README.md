@@ -1,5 +1,7 @@
 # universal-search-recommendation
 
+[![Build Status](https://travis-ci.org/mozilla/universal-search-recommendation.svg?branch=master)](https://travis-ci.org/mozilla/universal-search-recommendation)
+
 Universal Search recommendation server.
 
 
