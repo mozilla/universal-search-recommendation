@@ -41,7 +41,7 @@ class SearchRecommendation(object):
         Returns a list of instances for all applicable classifiers for the
         search.
         """
-        return [i for i in [C(result) for C in CLASSIFIERS] if i.is_match]
+        return [i for i in [C(result) for C in CLASSIFIERS] if i.matches]
 
     def get_suggestions(self, query):
         """

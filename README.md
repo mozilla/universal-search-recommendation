@@ -144,3 +144,12 @@ Additional confuration can be done by setting these optional environment variabl
 - `RECOMMENDATION_HOST`: the host at which you'd like the server to run. Default: `0.0.0.0`
 - `RECOMMENDATION_PORT`: the port at which you'd like the server to listen. Default: `5000`
 - `MEMCACHED_HOST`: the host at which memcached is listening. Default: `127.0.0.1`
+
+
+### Testing
+
+To run the test suite:
+
+```sh
+nosetests
+```
