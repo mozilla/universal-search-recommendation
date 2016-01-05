@@ -54,7 +54,7 @@ class BaseClassifier(object):
     def __init__(self, result):
         self.result = result
         self.url = urlparse(result['url'])
-        self.is_match = self.is_match(result)
+        self.matches = self.is_match(result)
 
     def is_match(self, result):
         """
@@ -63,7 +63,7 @@ class BaseClassifier(object):
         """
         raise NotImplementedError()
 
-    def enhancement(self):
+    def enhance(self):
         """
         Returns a dictionary of metadata that the passed result should be
         enhanced with.
