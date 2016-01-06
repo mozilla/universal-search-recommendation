@@ -8,7 +8,7 @@ __dirname = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(__dirname, 'README.md')) as readme:
     README = readme.read()
 
-with open(os.path.join(__dirname, 'app', 'requirements.txt')) as reqs:
+with open(os.path.join(__dirname, 'requirements.txt')) as reqs:
     REQUIREMENTS = reqs.read()
 
 

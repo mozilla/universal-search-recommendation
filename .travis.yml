@@ -1,5 +1,10 @@
 language: python
 python:
   - "3.5"
-install: "pip install -r requirements.txt"
-script: nosetests
+install:
+  - "pip install -r requirements.txt"
+  - "pip install coveralls"
+script:
+  - "python setup.py test"
+  - "coverage run --source=app setup.py test"
+after_success: coveralls
