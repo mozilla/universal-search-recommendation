@@ -1,9 +1,8 @@
-from urllib.parse import urlencode, urlparse, urlunparse
+from urllib.parse import urlencode, urlunparse
 
 import requests
 
 from app.memorize import memorize
-from app.memcached import memcached
 from app.search.classification.base import BaseClassifier
 
 

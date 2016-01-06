@@ -7,6 +7,7 @@ from app.search.recommendation import SearchRecommendation
 
 app = Flask(__name__)
 
+
 @app.route('/')
 def main():
     q = request.args.get('q')

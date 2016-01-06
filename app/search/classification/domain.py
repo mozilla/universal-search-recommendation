@@ -1,5 +1,3 @@
-from urllib.parse import urlparse
-
 from app.search.classification.base import BaseClassifier
 
 

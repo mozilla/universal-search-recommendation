@@ -1,7 +1,5 @@
 import requests
 
-from app.memorize import memorize
-from app.memcached import memcached
 from app.search.suggest.base import BaseSuggestionEngine
 
 

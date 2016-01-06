@@ -1,6 +1,7 @@
 bleach==1.4.2
 coverage==4.0.3
 coveralls==1.1
+flake8==2.5.1
 Flask==0.10.1
 itsdangerous==0.24
 Jinja2==2.8

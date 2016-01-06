@@ -1,7 +1,6 @@
 import bleach
 
 from app.memorize import memorize
-from app.memcached import memcached
 
 
 class BaseQueryEngine(object):

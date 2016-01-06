@@ -1,4 +1,3 @@
-from app.memcached import memcached
 from app.memorize import memorize
 from app.search.classification import CLASSIFIERS
 from app.search.query.yahoo import YahooQueryEngine
