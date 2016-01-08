@@ -1,11 +1,12 @@
 from flask import abort, Flask, jsonify, request
 
-from app import conf
+from app.conf import DEBUG
 from app.memorize import CacheMissError
 from app.search.recommendation import SearchRecommendation
 
 
 app = Flask(__name__)
+app.config['DEBUG'] = DEBUG
 
 
 @app.route('/')
@@ -18,7 +19,7 @@ def main():
     except CacheMissError:
         return jsonify({}), 202
     except Exception as e:
-        if conf.DEBUG:
+        if app.config['DEBUG']:
             return jsonify({e.__class__.__name__: e.args}), 500
         return jsonify({}), 500
     else:
