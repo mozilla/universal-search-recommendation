@@ -40,13 +40,14 @@ class SearchRecommendation(object):
         Returns a list of instances for all applicable classifiers for the
         search.
         """
-        return [i for i in [C(result) for C in CLASSIFIERS] if i.is_match()]
+        return [i for i in [C(result) for C in CLASSIFIERS]
+                if i.is_match(result)]
 
     def get_suggestions(self, query):
         """
         Queries the appropriate suggestion engine, returns the results.
         """
-        return self.get_suggestion_engine()(query).results
+        return self.get_suggestion_engine()(query).search()
 
     def get_top_suggestion(self, suggestions):
         """
@@ -59,7 +60,7 @@ class SearchRecommendation(object):
         """
         Queries the appropriate search engine, returns the top result.
         """
-        return self.get_query_engine()(query).search()
+        return self.get_query_engine()(query).search(query)
 
     def get_recommendation(self, query, suggestion, classifiers, result):
         """

@@ -10,7 +10,6 @@ class BaseSuggestionEngine(object):
     """
     def __init__(self, query):
         self.query = query
-        self.results = self.search(query)
 
     def fetch(self, query):
         """
