@@ -39,16 +39,16 @@ class TestWikipediaClassifier(TestCase):
     def tearDown(self):
         mock_memcached.flush_all()
 
-    def _create(self, url):
-        return WikipediaClassifier({
+    def _result(self, url):
+        return {
             'url': url
-        })
+        }
+
+    def _classifier(self, url):
+        return WikipediaClassifier(self._result(url))
 
     def _matches(self, url):
-        return self._create(url).matches
-
-    def test_init(self):
-        pass
+        return self._classifier(url).is_match(self._result(url))
 
     def test_is_match(self):
         eq_(self._matches('https://www.mozilla.com/en_US'), False)
@@ -59,7 +59,7 @@ class TestWikipediaClassifier(TestCase):
         eq_(self._matches('https://en.wikipedia.org/wiki/Mozilla/'), True)
 
     def test_api_url(self):
-        classifier = self._create('https://en.wikipedia.org/wiki/Mozilla')
+        classifier = self._classifier('https://en.wikipedia.org/wiki/Mozilla')
         expected = list(urlparse(
             'https://en.wikipedia.org/w/api.php?exintro=&explaintext=&titles=M'
             'ozilla&redirects=&prop=extracts&meta=siteinfo&action=query&format'
@@ -85,7 +85,7 @@ class TestWikipediaClassifier(TestCase):
           response.
         """
         mock_api_url.return_value = API_URL
-        classifier = self._create(SLUG)
+        classifier = self._classifier(SLUG)
         responses.add(responses.GET, API_URL, json=MOCK_RESPONSE, status=200)
         response_cold = classifier._api_response(SLUG)
         response_warm = classifier._api_response(SLUG)
@@ -104,7 +104,7 @@ class TestWikipediaClassifier(TestCase):
         """
         mock_api_url.return_value = API_URL
         responses.add(responses.GET, API_URL, json=MOCK_RESPONSE, status=200)
-        enhanced = self._create(SLUG).enhance()
+        enhanced = self._classifier(SLUG).enhance()
         ok_(enhanced['abstract'] in ABSTRACT)
         eq_(enhanced['slug'], SLUG)
         eq_(enhanced['title'], TITLE)

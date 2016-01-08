@@ -54,7 +54,6 @@ class BaseClassifier(object):
     def __init__(self, result):
         self.result = result
         self.url = urlparse(result['url'])
-        self.matches = self.is_match(result)
 
     def is_match(self, result):
         """
