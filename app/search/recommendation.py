@@ -19,7 +19,6 @@ class SearchRecommendation(object):
     """
     def __init__(self, query, request):
         self.request = request
-        self.recommendation = self.do_search(query)
 
     def get_suggestion_engine(self):
         """

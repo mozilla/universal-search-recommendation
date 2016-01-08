@@ -15,7 +15,8 @@ def main():
     if not q:
         abort(400)
     try:
-        search = SearchRecommendation(q, request)
+        recommendation = SearchRecommendation(q, request)
+        response = recommendation.do_search(q)
     except CacheMissError:
         return jsonify({}), 202
     except Exception as e:
@@ -23,4 +24,4 @@ def main():
             return jsonify({e.__class__.__name__: e.args}), 500
         return jsonify({}), 500
     else:
-        return jsonify(search.recommendation), 200
+        return jsonify(response), 200

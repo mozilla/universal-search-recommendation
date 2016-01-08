@@ -1,6 +1,7 @@
-from functools import wraps
 import hashlib
 import pickle
+from functools import wraps
+from inspect import getargspec
 
 from wrapt import ObjectProxy
 
@@ -126,12 +127,15 @@ class memorize(object):
         - The name of the class whose method to which the decorator was
           applied.
         - The name of the method to which the decorator was applied.
-        - The decorator's arguments.
+        - The decorator's arguments, excluding `self` if applicable.
         - The decorator's keyword arugments.
 
         This requires all args and kwargs to be picklable.
         """
         hashed = hashlib.md5()
+        fn_args = getargspec(fn).args
+        if fn_args and fn_args[0] == 'self' and len(args) == len(fn_args):
+            args = args[1:]
         pickled = pickle.dumps([fn.__name__, args, kwargs])
         hashed.update(pickled)
         return '%s_%s' % (self.prefix, hashed.hexdigest())
