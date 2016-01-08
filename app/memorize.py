@@ -47,6 +47,8 @@ class MemorizedObject(ObjectProxy):
 
     @from_cache.setter
     def from_cache(self, value):
+        if not isinstance(value, bool):
+            raise RuntimeError('MemorizedObject().from_cache must be a bool.')
         self._self_from_cache = value
 
     @property
@@ -55,6 +57,8 @@ class MemorizedObject(ObjectProxy):
 
     @cache_key.setter
     def cache_key(self, value):
+        if not isinstance(value, str):
+            raise RuntimeError('MemorizedObject().cache_key must be a str.')
         self._self_cache_key = value
 
 
