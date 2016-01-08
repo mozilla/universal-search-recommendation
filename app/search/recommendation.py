@@ -59,7 +59,7 @@ class SearchRecommendation(object):
         """
         Queries the appropriate search engine, returns the top result.
         """
-        return self.get_query_engine()(query).results
+        return self.get_query_engine()(query).search()
 
     def get_recommendation(self, query, suggestion, classifiers, result):
         """

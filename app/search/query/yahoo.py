@@ -5,6 +5,7 @@ import oauth2
 import requests
 
 from app import conf
+from app.memorize import memorize
 from app.search.query.base import BaseQueryEngine
 
 
@@ -12,8 +13,9 @@ class YahooQueryEngine(BaseQueryEngine):
     """
     Query engine that returns results from Yahoo's BOSS API.
     """
-    def fetch(self, query):
-        url = 'http://yboss.yahooapis.com/ysearch/web'
+    url = 'http://yboss.yahooapis.com/ysearch/web'
+
+    def _oauth_url(self, query):
         consumer = oauth2.Consumer(key=conf.YAHOO_OAUTH_KEY,
                                    secret=conf.YAHOO_OAUTH_SECRET)
         params = {
@@ -23,11 +25,14 @@ class YahooQueryEngine(BaseQueryEngine):
             'oauth_version': '1.0',
             'q': quote_plus(query)
         }
-        request = oauth2.Request(method='GET', url=url, parameters=params)
+        request = oauth2.Request(method='GET', url=self.url, parameters=params)
         request.sign_request(oauth2.SignatureMethod_HMAC_SHA1(),
                              consumer, None)
-        response = requests.get(request.to_url())
-        return response.json()
+        return request.to_url()
+
+    @memorize(prefix='yahoo')
+    def fetch(self, query):
+        return requests.get(self._oauth_url(query)).json()
 
     def sanitize_response(self, results):
         return results['bossresponse']['web']['results']

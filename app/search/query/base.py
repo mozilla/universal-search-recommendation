@@ -21,7 +21,6 @@ class BaseQueryEngine(object):
     """
     def __init__(self, query):
         self.query = query
-        self.results = self.search(query)
 
     def fetch(self, query):
         """
@@ -88,7 +87,7 @@ class BaseQueryEngine(object):
         """
         return self._strip_html(result['abstract'])
 
-    @memorize(prefix='query', error_on_miss=True)
+    @memorize(prefix='query')
     def search(self, query):
         """
         Simple method wrapping the full search and processing lifecycle.
