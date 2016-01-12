@@ -2,7 +2,7 @@
 
 Universal Search recommendation server.
 
-[![Build Status](https://travis-ci.org/mozilla/universal-search-recommendation.svg?branch=master)](https://travis-ci.org/mozilla/universal-search-recommendation) [![Coverage Status](https://coveralls.io/repos/mozilla/universal-search-recommendation/badge.svg?branch=master&service=github)](https://coveralls.io/github/mozilla/universal-search-recommendation?branch=master)
+[![Build Status](https://travis-ci.org/mozilla/universal-search-recommendation.svg?branch=master)](https://travis-ci.org/mozilla/universal-search-recommendation) [![Coverage Status](https://coveralls.io/repos/mozilla/universal-search-recommendation/badge.svg?branch=master&service=github)](https://coveralls.io/github/mozilla/universal-search-recommendation?branch=master) [![Requirements Status](https://requires.io/github/mozilla/universal-search-recommendation/requirements.svg?branch=master)](https://requires.io/github/mozilla/universal-search-recommendation/requirements/?branch=master)
 
 ## Methodology
 
