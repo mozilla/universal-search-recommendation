@@ -1,8 +1,7 @@
-from memcached import memcached
-from memorize import memorize
-from search.classification import CLASSIFIERS
-from search.query.yahoo import YahooQueryEngine
-from search.suggest.bing import BingSuggestionEngine
+from app.memorize import memorize
+from app.search.classification import CLASSIFIERS
+from app.search.query.yahoo import YahooQueryEngine
+from app.search.suggest.bing import BingSuggestionEngine
 
 
 class SearchRecommendation(object):
@@ -20,7 +19,6 @@ class SearchRecommendation(object):
     """
     def __init__(self, query, request):
         self.request = request
-        self.recommendation = self.do_search(query)
 
     def get_suggestion_engine(self):
         """
@@ -41,13 +39,14 @@ class SearchRecommendation(object):
         Returns a list of instances for all applicable classifiers for the
         search.
         """
-        return [i for i in [C(result) for C in CLASSIFIERS] if i.is_match]
+        return [i for i in [C(result) for C in CLASSIFIERS]
+                if i.is_match(result)]
 
     def get_suggestions(self, query):
         """
         Queries the appropriate suggestion engine, returns the results.
         """
-        return self.get_suggestion_engine()(query).results
+        return self.get_suggestion_engine()(query).search()
 
     def get_top_suggestion(self, suggestions):
         """
@@ -60,7 +59,7 @@ class SearchRecommendation(object):
         """
         Queries the appropriate search engine, returns the top result.
         """
-        return self.get_query_engine()(query).results
+        return self.get_query_engine()(query).search(query)
 
     def get_recommendation(self, query, suggestion, classifiers, result):
         """

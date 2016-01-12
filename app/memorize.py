@@ -1,10 +1,11 @@
-from functools import wraps
 import hashlib
 import pickle
+from functools import wraps
+from inspect import getargspec
 
 from wrapt import ObjectProxy
 
-from memcached import memcached
+from app.memcached import memcached
 
 
 class CacheMissError(RuntimeError):
@@ -46,6 +47,8 @@ class MemorizedObject(ObjectProxy):
 
     @from_cache.setter
     def from_cache(self, value):
+        if not isinstance(value, bool):
+            raise RuntimeError('MemorizedObject().from_cache must be a bool.')
         self._self_from_cache = value
 
     @property
@@ -54,6 +57,8 @@ class MemorizedObject(ObjectProxy):
 
     @cache_key.setter
     def cache_key(self, value):
+        if not isinstance(value, str):
+            raise RuntimeError('MemorizedObject().cache_key must be a str.')
         self._self_cache_key = value
 
 
@@ -126,12 +131,15 @@ class memorize(object):
         - The name of the class whose method to which the decorator was
           applied.
         - The name of the method to which the decorator was applied.
-        - The decorator's arguments.
+        - The decorator's arguments, excluding `self` if applicable.
         - The decorator's keyword arugments.
 
         This requires all args and kwargs to be picklable.
         """
         hashed = hashlib.md5()
+        fn_args = getargspec(fn).args
+        if fn_args and fn_args[0] == 'self' and len(args) == len(fn_args):
+            args = args[1:]
         pickled = pickle.dumps([fn.__name__, args, kwargs])
         hashed.update(pickled)
         return '%s_%s' % (self.prefix, hashed.hexdigest())

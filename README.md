@@ -2,6 +2,7 @@
 
 Universal Search recommendation server.
 
+[![Build Status](https://travis-ci.org/mozilla/universal-search-recommendation.svg?branch=master)](https://travis-ci.org/mozilla/universal-search-recommendation) [![Coverage Status](https://coveralls.io/repos/mozilla/universal-search-recommendation/badge.svg?branch=master&service=github)](https://coveralls.io/github/mozilla/universal-search-recommendation?branch=master)
 
 ## Methodology
 
@@ -120,14 +121,14 @@ To install:
 git clone https://github.com/mozilla/universal-search-recommendation.git
 cd universal-search-recommendation
 mkvirtualenv universal-search-recommendation  # You may need to set --python to point to the python 3.5 executable.
-python setup.py install
+pip install -r requirements.txt
 ```
 
 To run the server:
 
 ```sh
 source .env
-python app/main.py
+python server.py
 ```
 
 
@@ -144,3 +145,12 @@ Additional confuration can be done by setting these optional environment variabl
 - `RECOMMENDATION_HOST`: the host at which you'd like the server to run. Default: `0.0.0.0`
 - `RECOMMENDATION_PORT`: the port at which you'd like the server to listen. Default: `5000`
 - `MEMCACHED_HOST`: the host at which memcached is listening. Default: `127.0.0.1`
+
+
+### Testing
+
+To run the test suite:
+
+```sh
+nosetests
+```

@@ -1,11 +1,9 @@
-from urllib.parse import urlencode, urlparse, urlunparse
+from urllib.parse import urlencode, urlunparse
 
 import requests
 
-from memorize import memorize
-from memcached import memcached
-
-from .base import BaseClassifier
+from app.memorize import memorize
+from app.search.classification.base import BaseClassifier
 
 
 class WikipediaClassifier(BaseClassifier):
@@ -27,7 +25,7 @@ class WikipediaClassifier(BaseClassifier):
         return (self.url.netloc.endswith('wikipedia.org') and
                 self.url.path.startswith('/wiki'))
 
-    def _api_url(self, page_title):
+    def _api_url(self, slug):
         """
         Constructs a URL to the Wikipedia API endpoint for an article with the
         passed page title.
@@ -42,20 +40,19 @@ class WikipediaClassifier(BaseClassifier):
             'meta': 'siteinfo',
             'prop': 'extracts',
             'redirects': '',
-            'titles': page_title
+            'titles': slug
         })
         return urlunparse(endpoint)
 
     @memorize(prefix='wikipedia')
-    def _api_response(self, page_title):
+    def _api_response(self, slug):
         """
         Makes an API request to Wikipedia, fetching the extract for the article
         with the passed page title.
 
         https://www.mediawiki.org/wiki/API:Main_page
         """
-        url = self._api_url(page_title)
-        response = requests.get(url)
+        response = requests.get(self._api_url(slug))
         return list(response.json()['query']['pages'].items())[0][1]
 
     def enhance(self):

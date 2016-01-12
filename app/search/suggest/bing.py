@@ -1,21 +1,21 @@
 import requests
 
-from memorize import memorize
-from memcached import memcached
-
-from .base import BaseSuggestionEngine
+from app.memorize import memorize
+from app.search.suggest.base import BaseSuggestionEngine
 
 
 class BingSuggestionEngine(BaseSuggestionEngine):
     """
     Suggestion engine that returns results from Bing's search suggestions API.
     """
+    url = 'https://api.bing.com/osjson.aspx'
+
+    @memorize(prefix='bing')
     def fetch(self, query):
-        url = 'https://api.bing.com/osjson.aspx'
         params = {
             'query': query
         }
-        response = requests.get(url, params)
+        response = requests.get(self.url, params)
         return response.json()
 
     def sanitize(self, results):

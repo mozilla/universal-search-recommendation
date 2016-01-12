@@ -1,16 +1,13 @@
-import os
-import sys
-
 from flask import abort, Flask, jsonify, request
 
-from search.recommendation import SearchRecommendation
+from app.conf import DEBUG
+from app.memorize import CacheMissError
+from app.search.recommendation import SearchRecommendation
 
-import conf
-from memorize import CacheMissError
 
-
-sys.path.append(os.path.dirname(__file__))
 app = Flask(__name__)
+app.config['DEBUG'] = DEBUG
+
 
 @app.route('/')
 def main():
@@ -18,17 +15,13 @@ def main():
     if not q:
         abort(400)
     try:
-        search = SearchRecommendation(q, request)
+        recommendation = SearchRecommendation(q, request)
+        response = recommendation.do_search(q)
     except CacheMissError:
         return jsonify({}), 202
     except Exception as e:
-        if conf.DEBUG:
+        if app.config['DEBUG']:
             return jsonify({e.__class__.__name__: e.args}), 500
         return jsonify({}), 500
     else:
-        return jsonify(search.recommendation), 200
-
-
-if __name__ == '__main__':
-    print('Running server on http://%s:%d' % (conf.HOST, conf.PORT))
-    app.run(debug=conf.DEBUG, host=conf.HOST, port=conf.PORT)
+        return jsonify(response), 200

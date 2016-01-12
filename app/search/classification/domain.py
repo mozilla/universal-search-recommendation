@@ -1,6 +1,4 @@
-from urllib.parse import urlparse
-
-from .base import BaseClassifier
+from app.search.classification.base import BaseClassifier
 
 
 class DomainClassifier(BaseClassifier):
