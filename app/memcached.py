@@ -1,4 +1,4 @@
-from pylibmc import Client
+from memcache import Client
 
 from app import conf
 

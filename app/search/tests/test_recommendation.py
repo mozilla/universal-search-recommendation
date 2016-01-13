@@ -3,6 +3,7 @@ from unittest import TestCase
 from mock import patch
 from nose.tools import eq_, ok_
 
+from app.memorize import CacheMissError
 from app.search.classification.domain import DomainClassifier
 from app.search.classification.tests.test_domain import DOMAIN
 from app.search.recommendation import SearchRecommendation
@@ -84,17 +85,14 @@ class TestSearchRecommendation(TestCase):
         mock_result.return_value = result
         mock_classifiers.return_value = classifiers
 
+        with self.assertRaises(CacheMissError):
+            self.instance.do_search(QUERY)
         search = self.instance.do_search(QUERY)
-        search_warm = self.instance.do_search(QUERY)
 
+        ok_(search.from_cache)
         ok_(all([k in search for k in ['enhancements', 'query', 'result']]))
         eq_(list(search['enhancements'].keys()), [c.type for c in classifiers])
         eq_(search['enhancements']['domain'], classifiers[0].enhance())
         eq_(search['query']['completed'], top_suggestion)
         eq_(search['query']['original'], QUERY)
         eq_(search['result'], result)
-
-        ok_(not search.from_cache)
-        ok_(search_warm.from_cache)
-        eq_(search.cache_key, search.cache_key)
-        eq_(search, search_warm)

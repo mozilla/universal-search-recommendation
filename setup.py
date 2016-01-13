@@ -8,9 +8,6 @@ __dirname = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(__dirname, 'README.md')) as readme:
     README = readme.read()
 
-with open(os.path.join(__dirname, 'requirements.txt')) as reqs:
-    REQUIREMENTS = reqs.read()
-
 
 setup(
     name='universal-search-recommendation',
@@ -27,5 +24,4 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    install_requires=REQUIREMENTS,
 )
