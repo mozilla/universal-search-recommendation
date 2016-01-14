@@ -12,6 +12,16 @@ In order to deploy or configure the development environment, you must have [inst
 The `master` branch is deployed to an application called `universal-search-recommendation-dev`, in an environment called `us-recommendation-dev`. To configure your clone to deploy, ensure that the master branch is checked out and run:
 
 ```sh
+eb init
+```
+
+At the first prompt, choose **us-west-2** as the default region.
+
+At the second prompt, choose **universal-search-recommendation-dev** as the application to use.
+
+Next, run:
+
+```sh
 eb use us-recommendation-dev
 ```
 
