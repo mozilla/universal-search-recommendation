@@ -4,6 +4,9 @@ Universal Search recommendation server.
 
 [![Build Status](https://travis-ci.org/mozilla/universal-search-recommendation.svg?branch=master)](https://travis-ci.org/mozilla/universal-search-recommendation) [![Coverage Status](https://coveralls.io/repos/mozilla/universal-search-recommendation/badge.svg?branch=master&service=github)](https://coveralls.io/github/mozilla/universal-search-recommendation?branch=master) [![Requirements Status](https://requires.io/github/mozilla/universal-search-recommendation/requirements.svg?branch=master)](https://requires.io/github/mozilla/universal-search-recommendation/requirements/?branch=master)
 
+**Documentation**: [Local Development](#local-development) | [Methodology](#methodology) | [Deployment](docs/deploy.md)
+
+
 ## Methodology
 
 This recommendation service is intended to return a suggested search result—and additional metadata for it—for an incomplete search string. Following: a walkthrough of the methodology using the search term "the mar", an in-process search where the user is looking for information about the film [The Martian](http://www.imdb.com/title/tt3659388/).

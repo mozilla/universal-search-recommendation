@@ -75,7 +75,7 @@ class SearchRecommendation(object):
             'enhancements': {c.type: c.enhance() for c in classifiers}
         }
 
-    @memorize(prefix='search')
+    @memorize(prefix='search', error_on_miss=True)
     def do_search(self, query):
         """
         The full search lifecycle, encapsulated in a method for easy
