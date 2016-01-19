@@ -4,7 +4,7 @@ from flask.ext.testing import TestCase
 from mock import patch
 from nose.tools import eq_
 
-from app.main import app as main_app
+from app.main import application
 from app.memorize import CacheMissError
 
 
@@ -20,7 +20,7 @@ class TestApp(TestCase):
     debug = False
 
     def create_app(self):
-        app = main_app
+        app = application
         app.config['DEBUG'] = self.debug
         return app
 

@@ -5,11 +5,11 @@ from app.memorize import CacheMissError
 from app.search.recommendation import SearchRecommendation
 
 
-app = Flask(__name__)
-app.config['DEBUG'] = DEBUG
+application = Flask(__name__)
+application.config['DEBUG'] = DEBUG
 
 
-@app.route('/')
+@application.route('/')
 def main():
     q = request.args.get('q')
     if not q:
@@ -20,7 +20,7 @@ def main():
     except CacheMissError:
         return jsonify({}), 202
     except Exception as e:
-        if app.config['DEBUG']:
+        if application.config['DEBUG']:
             return jsonify({e.__class__.__name__: e.args}), 500
         return jsonify({}), 500
     else:

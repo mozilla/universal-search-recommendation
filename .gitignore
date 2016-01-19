@@ -59,3 +59,6 @@ docs/_build/
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+# Editable dependencies
+app/src
