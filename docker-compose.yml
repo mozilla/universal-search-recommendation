@@ -1,0 +1,37 @@
+app:
+  build: ./app
+  restart: always
+  expose:
+    - "8000"
+  env_file: .env
+  entrypoint: /app/entry.sh
+  environment:
+    - MEMCACHED_HOST=memcached:11211
+  links:
+    - memcached
+
+nginx:
+  build: ./conf/nginx
+  restart: always
+  ports:
+    - "80:80"
+  links:
+    - app
+
+memcached:
+  image: memcached
+  restart: always
+  expose:
+    - "11211"
+
+redis:
+  image: redis
+  expose:
+    - "6379"
+
+celery:
+  image: celery
+  links:
+    - redis
+  environment:
+    - CELERY_BROKER_URL=redis://redis:6379
