@@ -8,14 +8,6 @@ from wrapt import ObjectProxy
 from app.memcached import memcached
 
 
-class CacheMissError(RuntimeError):
-    """
-    Exception thrown when memorized object is not found in cache and
-    error_on_miss is set to True.
-    """
-    pass
-
-
 class MemorizedObject(ObjectProxy):
     """
     Thin wrapper around any memorized objects, adding attributes indicating
@@ -93,10 +85,9 @@ class memorize(object):
     author.from_cache            # False
     author.cache_key             # 'memorize_cd2db0e4dc383ea0c5643ce6478612a3'
     """
-    def __init__(self, prefix='memorized', ttl=0, error_on_miss=False):
+    def __init__(self, prefix='memorized', ttl=0):
         self.prefix = prefix
         self.ttl = ttl
-        self.error_on_miss = error_on_miss
 
     def __call__(self, fn):
         """
@@ -112,12 +103,8 @@ class memorize(object):
                 value = MemorizedObject(value)
                 value.from_cache = True
             else:
-                # TODO: kick off a task here, instead of calculating the value.
-                # https://github.com/mozilla/universal-search-recommendation/issues/11
                 value = fn(*args, **kwargs)
                 memcached.set(key, value, time=self.ttl)
-                if self.error_on_miss:
-                    raise CacheMissError()
                 value = MemorizedObject(value)
             value.cache_key = key
             return value

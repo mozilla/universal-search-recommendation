@@ -1,4 +1,3 @@
-from app.memorize import memorize
 from app.search.classification import CLASSIFIERS
 from app.search.query.yahoo import YahooQueryEngine
 from app.search.suggest.bing import BingSuggestionEngine
@@ -17,8 +16,8 @@ class SearchRecommendation(object):
       sequentially determine if they match the result, then enhance the result
       if so.
     """
-    def __init__(self, query, request):
-        self.request = request
+    def __init__(self, query):
+        self.query = query
 
     def get_suggestion_engine(self):
         """
@@ -75,7 +74,6 @@ class SearchRecommendation(object):
             'enhancements': {c.type: c.enhance() for c in classifiers}
         }
 
-    @memorize(prefix='search', error_on_miss=True)
     def do_search(self, query):
         """
         The full search lifecycle, encapsulated in a method for easy

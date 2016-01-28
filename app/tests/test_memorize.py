@@ -5,7 +5,7 @@ from mock import patch
 from nose.tools import eq_, ok_
 from wrapt import ObjectProxy
 
-from app.memorize import CacheMissError, memorize, MemorizedObject
+from app.memorize import memorize, MemorizedObject
 from app.tests.memcached import mock_memcached
 
 
@@ -23,10 +23,6 @@ class SampleObject(object):
 
     @memorize(prefix=PREFIX)
     def prefix(self, *args, **kwargs):
-        return object()
-
-    @memorize(error_on_miss=True)
-    def error_on_miss(self, *args, **kwargs):
         return object()
 
 
@@ -98,11 +94,6 @@ class TestMemorize(TestCase):
         ok_(self._key(b='c') != self._key('a', b='c'))
         ok_(self._key(), self._key(fn='no_args_2'))
         ok_(self._key(), self._key(fn='prefix'))
-
-    def test_error_on_miss(self):
-        self._memorized('no_args')
-        with self.assertRaises(CacheMissError):
-            self._memorized('error_on_miss')
 
     def test_memorized_object_props(self):
         obj_cold = self._memorized('no_args')
