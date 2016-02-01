@@ -1,0 +1,41 @@
+{
+    "name": "Universal Search Recommendation Server",
+    "description": "Recommendation server for the Universal Search Test Pilot add-on.",
+    "repository": {
+        "url": "https://github.com/mozilla/universal-search-recommendation",
+        "other_urls": [
+            "https://github.com/mozilla/universal-search-addon",
+            "https://github.com/mozilla/universal-search-content",
+            "https://github.com/mozilla/universal-search-download-page"
+        ],
+        "license": "MPL2",
+        "type": "git",
+        "tests": "https://travis-ci.org/mozilla/universal-search-recommendation"
+    },
+    "participate": {
+        "home": "https://wiki.mozilla.org/Firefox/Universal_Search",
+        "docs": "https://github.com/mozilla/universal-search-recommendation/blob/master/README.md",
+        "mailing-list": "https://mail.mozilla.org/listinfo/testpilot-dev",
+        "irc": "irc://irc.mozilla.org/#universal-search"
+    },
+    "bugs": {
+        "list": "https://github.com/mozilla/universal-search-recommendation/issues",
+        "report": "https://github.com/mozilla/universal-search-recommendation/issues/new"
+    },
+    "keywords": [
+        "python",
+        "flask",
+        "celery",
+        "redis",
+        "memcached",
+        "docker",
+        "html5",
+        "css",
+        "mustache",
+        "ampersand",
+        "rest",
+        "api",
+        "machine learning",
+        "nodejs"
+    ]
+}
