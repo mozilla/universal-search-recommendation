@@ -1,22 +1,21 @@
 app:
   build: ./app
-  restart: always
+  command: uwsgi --http :8000 --wsgi-file /app/main.py --master
+  env_file: .env
   expose:
     - "8000"
-  env_file: .env
-  entrypoint: /app/entry.sh
-  environment:
-    - MEMCACHED_HOST=memcached:11211
   links:
     - memcached
+    - redis
+  restart: always
 
 nginx:
   build: ./conf/nginx
-  restart: always
-  ports:
-    - "80:80"
   links:
     - app
+  ports:
+    - "80:80"
+  restart: always
 
 memcached:
   image: memcached
@@ -26,12 +25,14 @@ memcached:
 
 redis:
   image: redis
-  expose:
-    - "6379"
 
 celery:
-  image: celery
-  links:
-    - redis
+  build: ./app
+  command: celery worker --app=app.main
+  env_file: .env
   environment:
-    - CELERY_BROKER_URL=redis://redis:6379
+    - CELERY_BROKER_URL=redis://redis:6379/0
+  links:
+    - memcached
+    - redis
+  restart: always
