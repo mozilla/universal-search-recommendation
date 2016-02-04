@@ -49,7 +49,7 @@ There will always be three keys in the root object:
 * `query` will be an object containing information about the text of the query itself:
     * `original` will be a string containing the original query, as passed in the request.
     * `completed` will be a string containing the query, as completed.
-* `result` includes basic information about a destination recommendation for the completed result:
+* `result` will include information about a destination recommendation for the completed result:
     * `abstract` will be a string containing a short textual overview of the recommendation.
     * `title` will be a string containing a title for the recommendation.
     * `url` will be a string containing a URL for the recommendation.
