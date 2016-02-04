@@ -123,10 +123,8 @@ class memorize(object):
 
         This requires all args and kwargs to be picklable.
         """
-        hashed = hashlib.md5()
         fn_args = getargspec(fn).args
         if fn_args and fn_args[0] == 'self' and len(args) == len(fn_args):
             args = args[1:]
         pickled = pickle.dumps([fn.__name__, args, kwargs])
-        hashed.update(pickled)
-        return '%s_%s' % (self.prefix, hashed.hexdigest())
+        return '%s_%s' % (self.prefix, hashlib.sha256(pickled).hexdigest())
