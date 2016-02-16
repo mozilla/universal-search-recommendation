@@ -3,12 +3,14 @@ import hashlib
 from flask import abort, Flask, jsonify, request
 
 from app import conf
+from app.cors import cors_headers
 from app.util import make_queue
 from app.memcached import memcached
 from app.search.recommendation import SearchRecommendation
 
 
 application = Flask(__name__)
+application.after_request(cors_headers)
 application.config.update(
     CELERY_BROKER_URL=conf.CELERY_BROKER_URL,
     DEBUG=conf.DEBUG
