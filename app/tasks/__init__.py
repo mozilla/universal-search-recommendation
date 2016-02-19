@@ -1,1 +1,1 @@
-from app.tasks.task_recommend import recommend
+from app.tasks.task_recommend import recommend  # noqa

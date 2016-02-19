@@ -17,7 +17,7 @@ class TestCreateApp(TestCase):
     def test_create_app(self):
         app = create_app()
         ok_(cors_headers in app.after_request_funcs[None])
-        ok_(all(name in app.blueprints for name in ['main']))
+        ok_(all(name in app.blueprints for name in ['main', 'status']))
         eq_(app.config['CELERY_BROKER_URL'], BROKER_URL)
 
 
