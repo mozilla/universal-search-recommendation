@@ -3,8 +3,9 @@ from unittest import TestCase
 
 from flask.ext.testing import TestCase as FlaskTestCase
 from mock import patch
-from nose.tools import eq_
+from nose.tools import eq_, ok_
 
+from app.cors import cors_headers
 from app.main import application, recommend
 from app.tests.memcached import mock_memcached
 
@@ -40,6 +41,18 @@ class TestApp(FlaskTestCase):
         })
         return self._get(url)
 
+    def test_cors(self):
+        headers = [
+            'Access-Control-Allow-Headers',
+            'Access-Control-Allow-Methods',
+            'Access-Control-Allow-Origin',
+        ]
+        ok_(all([header not in dict(self.app.response_class().headers).keys()
+                 for header in headers]))
+        cors_response = cors_headers(self.app.response_class())
+        ok_(all([header in dict(cors_response.headers).keys()
+                 for header in headers]))
+
     def test_no_query(self):
         eq_(self._get('/').status_code, 400)
 
@@ -51,8 +64,7 @@ class TestApp(FlaskTestCase):
         eq_(response.json, {})
 
     @patch('app.tests.memcached.mock_memcached.get')
-    @patch('app.main.recommend.delay')
-    def test_cache_hit(self, mock_delay, mock_get):
+    def test_cache_hit(self, mock_get):
         mock_get.return_value = RESULTS
         eq_(self._query(QUERY).status_code, 200)
         eq_(self._query(QUERY).json, RESULTS)
