@@ -1,0 +1,49 @@
+machine:
+  services:
+    - docker
+
+
+dependencies:
+  cache_directories:
+    - "~/docker"
+
+  override:
+    - docker info
+
+    # Build the container, using Circle's Docker cache. Only use 1 image per
+    # day to keep the cache size down.
+    - I="image-$(date +%j).tgz"; if [[ -e ~/docker/$I ]]; then echo "Loading $I"; gunzip -c ~/docker/$I | docker load; fi
+
+    # Create a version.json file for the app to serve.
+    - printf '{"commit":"%s","version":"%s","source":"https://github.com/%s/%s"}\n' "$CIRCLE_SHA1" "$CIRCLE_TAG" "$CIRCLE_PROJECT_USERNAME" "$CIRCLE_PROJECT_REPONAME" > version.json
+
+    # build the actual deployment container
+    - docker build -t app:build app
+
+    # Clean up any old images; save the new one.
+    - I="image-$(date +%j).tgz"; mkdir -p ~/docker; rm ~/docker/*; docker save app:build | gzip -c > ~/docker/$I; ls -l ~/docker
+
+
+# Run flake8 and the Python test suite via nose.
+test:
+  override:
+    - docker run app:build sh -c 'cd / && flake8 /app --exclude=/app/src && nosetests --exclude=/app/src'
+
+
+# Tag and push the container to Docker Hub.
+deployment:
+  hub_latest:
+    branch: "master"
+    commands:
+      - "[ ! -z $DOCKERHUB_REPO ]"
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      - "docker tag app:build ${DOCKERHUB_REPO}:latest"
+      - "docker push ${DOCKERHUB_REPO}:latest"
+  hub_releases:
+    tag: /.*/
+    commands:
+      - "[ ! -z $DOCKERHUB_REPO ]"
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      - "docker tag app:build ${DOCKERHUB_REPO}:${CIRCLE_TAG}"
+      - "docker images"
+      - "docker push ${DOCKERHUB_REPO}:${CIRCLE_TAG}"
