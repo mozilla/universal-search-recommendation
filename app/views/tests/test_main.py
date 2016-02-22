@@ -1,11 +1,11 @@
 from urllib.parse import urlencode
 
-from flask.ext.testing import TestCase as FlaskTestCase
 from mock import patch
 from nose.tools import eq_, ok_
 
 from app.cors import cors_headers
 from app.tests.memcached import mock_memcached
+from app.tests.util import AppTestCase
 
 
 KEY = 'query_key'
@@ -18,18 +18,11 @@ EXCEPTION = RuntimeError(*EXCEPTION_ARGS)
 
 
 @patch('app.tasks.task_recommend.memcached', mock_memcached)
-class TestApp(FlaskTestCase):
+class TestMain(AppTestCase):
     debug = False
 
     def tearDown(self):
         mock_memcached.flush_all()
-
-    def create_app(self):
-        from app.main import application
-        app = application
-        app.config['DEBUG'] = self.debug
-        app.config['PRESERVE_CONTEXT_ON_EXCEPTION'] = False
-        return app
 
     def _get(self, path):
         return self.client.get(path)
@@ -76,7 +69,7 @@ class TestApp(FlaskTestCase):
         eq_(mock_delay.call_count, 1)
 
 
-class TestAppDebug(TestApp):
+class TestMainDebug(TestMain):
     debug = True
 
     @patch('app.tasks.task_recommend.memcached.get')
