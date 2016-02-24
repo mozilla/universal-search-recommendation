@@ -3,9 +3,6 @@ python:
   - "3.5"
 install:
   - "pip install -r app/requirements.txt"
-  - "pip install coveralls flake8"
 script:
-  - "python setup.py test"
-  - "flake8 ."
-  - "coverage run --source=app setup.py test"
+  - "nosetests --cover-min-percentage=100 --with-coverage --cover-package=app"
 after_success: coveralls
