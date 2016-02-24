@@ -28,7 +28,7 @@ MEMCACHED_PING_OK = [MEMCACHED_CLUSTER_OK, MEMCACHED_CLUSTER_OK]
 
 class TestStatusViews(AppTestCase):
     def test_lbheartbeat(self):
-        response = self.client.get('/lbheartbeat')
+        response = self.client.get('/__lbheartbeat__')
         eq_(response.status_code, 200)
         ok_(not response.data)
 
@@ -36,7 +36,7 @@ class TestStatusViews(AppTestCase):
     @patch('app.views.status.memcached_status')
     @patch('app.views.status.redis_status')
     def test_heartbeat_pass(self, mock_celery, mock_memcached, mock_redis):
-        response = self.client.get('/heartbeat')
+        response = self.client.get('/__heartbeat__')
         eq_(response.status_code, 200)
         eq_(mock_celery.call_count, 1)
         eq_(mock_memcached.call_count, 1)
@@ -47,7 +47,7 @@ class TestStatusViews(AppTestCase):
     @patch('app.views.status.redis_status')
     def test_heartbeat_celery(self, mock_celery, mock_memcached, mock_redis):
         mock_celery.side_effect = ServiceDown
-        response = self.client.get('/heartbeat')
+        response = self.client.get('/__heartbeat__')
         eq_(response.status_code, 500)
         eq_(mock_celery.call_count, 1)
 
@@ -57,7 +57,7 @@ class TestStatusViews(AppTestCase):
     def test_heartbeat_memcached(self, mock_celery, mock_memcached,
                                  mock_redis):
         mock_memcached.side_effect = ServiceDown
-        response = self.client.get('/heartbeat')
+        response = self.client.get('/__heartbeat__')
         eq_(response.status_code, 500)
         eq_(mock_memcached.call_count, 1)
 
@@ -66,7 +66,7 @@ class TestStatusViews(AppTestCase):
     @patch('app.views.status.redis_status')
     def test_heartbeat_redis(self, mock_celery, mock_memcached, mock_redis):
         mock_redis.side_effect = ServiceDown
-        response = self.client.get('/heartbeat')
+        response = self.client.get('/__heartbeat__')
         eq_(response.status_code, 500)
         eq_(mock_redis.call_count, 1)
 
