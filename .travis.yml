@@ -2,7 +2,7 @@ language: python
 python:
   - "3.5"
 install:
-  - "pip install -r app/requirements.txt"
+  - "pip install -r requirements.txt"
 script:
-  - "nosetests --cover-min-percentage=100 --with-coverage --cover-package=app"
+  - "nosetests --with-coverage --cover-package=recommendation --exclude-dir=src"
 after_success: coveralls
