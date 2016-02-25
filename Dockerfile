@@ -15,4 +15,5 @@ COPY . /app
 ENV PYTHONPATH $PYTHONPATH:/app
 
 USER app
-ENTRYPOINT /app/conf/web.sh
+EXPOSE 8000
+ENTRYPOINT ["/app/conf/web.sh"]
