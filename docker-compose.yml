@@ -1,37 +1,26 @@
-app:
-  build: ./app
-  command: uwsgi --http :8000 --wsgi-file /app/main.py --master
-  env_file: .env
-  expose:
-    - "8000"
-  links:
-    - memcached
-    - redis
-  restart: always
-
-nginx:
-  build: ./conf/nginx
-  links:
-    - app
-  ports:
-    - "80:80"
-  restart: always
-
 memcached:
-  image: memcached
-  restart: always
   expose:
     - "11211"
+  image: memcached
+  restart: always
+  ports:
+    - "11211"
+    - "11211:11211"
 
 redis:
+  expose:
+    - "6379"
   image: redis
+  ports:
+    - "6379"
+    - "6379:6379"
 
-celery:
-  build: ./app
-  command: celery worker --app=app.main
+worker:
+  build: ./
+  entrypoint: /app/conf/worker.sh
   env_file: .env
   environment:
-    - CELERY_BROKER_URL=redis://redis:6379/0
+    - RECOMMENDATION_ENV="worker"
   links:
     - memcached
     - redis
