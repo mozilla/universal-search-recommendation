@@ -1,6 +1,6 @@
-from memcache import Client
+import pylibmc
 
 from recommendation import conf
 
 
-memcached = Client([conf.MEMCACHED_HOST])
+memcached = pylibmc.Client([conf.MEMCACHED_HOST])
