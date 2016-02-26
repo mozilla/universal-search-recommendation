@@ -2,6 +2,8 @@ import os
 
 from setuptools import setup, find_packages
 
+from recommendation import VERSION
+
 
 __dirname = os.path.abspath(os.path.dirname(__file__))
 
@@ -11,7 +13,7 @@ with open(os.path.join(__dirname, 'README.md')) as readme:
 
 setup(
     name='universal-search-recommendation',
-    version='0.1.0',
+    version=VERSION,
     description='Universal Search recommendation server.',
     long_description=README,
     classifiers=[
