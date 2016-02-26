@@ -8,7 +8,7 @@ from app.memcached import memcached
 status = Blueprint('status', __name__)
 
 
-@status.route('/lbheartbeat')
+@status.route('/__lbheartbeat__')
 def lbheartbeat():
     return ('', 200)
 
@@ -56,7 +56,7 @@ def celery_status():
                 raise ServiceDown()
 
 
-@status.route('/heartbeat')
+@status.route('/__heartbeat__')
 def heartbeat():
     """
     Sequentially runs each of the memcached, redis, and celery health checks.
