@@ -1,11 +1,19 @@
+from os import path
+
 from celery.app.control import Control
-from flask import abort, Blueprint
+from flask import abort, Blueprint, send_file
 from redis.exceptions import ConnectionError as RedisConnectionError
 
 from recommendation.memcached import memcached
+from recommendation.views.static import STATIC_DIR
 
 
 status = Blueprint('status', __name__)
+
+
+@status.route('/__version__')
+def version():
+    return send_file(path.join(STATIC_DIR, 'version.json'))
 
 
 @status.route('/__lbheartbeat__')

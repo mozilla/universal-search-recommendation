@@ -1,7 +1,11 @@
+import json
+from os import path
+
 from mock import patch
 from nose.tools import eq_, ok_
 from redis.exceptions import ConnectionError as RedisError
 
+from recommendation.views.static import STATIC_DIR
 from recommendation.views.status import (celery_status, memcached_status,
                                          redis_status, ServiceDown)
 from recommendation.tests.util import AppTestCase
@@ -28,6 +32,12 @@ MEMCACHED_PING_OK = [MEMCACHED_CLUSTER_OK, MEMCACHED_CLUSTER_OK]
 
 
 class TestStatusViews(AppTestCase):
+    def test_version(self):
+        response = self.client.get('/__version__')
+        eq_(response.status_code, 200)
+        with open(path.join(STATIC_DIR, 'version.json')) as file_data:
+            eq_(json.load(file_data), response.json)
+
     def test_lbheartbeat(self):
         response = self.client.get('/__lbheartbeat__')
         eq_(response.status_code, 200)
