@@ -1,2 +1,5 @@
 [run]
 source = app
+
+[report]
+omit = recommendation/conf.py

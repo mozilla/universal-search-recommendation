@@ -1,0 +1,9 @@
+__pycache__
+*.pyc
+src
+.DS_Store
+.eggs
+.git
+dist
+.coverage
+coverage.xml

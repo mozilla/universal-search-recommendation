@@ -18,7 +18,7 @@ dependencies:
     - printf '{"commit":"%s","version":"%s","source":"https://github.com/%s/%s"}\n' "$CIRCLE_SHA1" "$CIRCLE_TAG" "$CIRCLE_PROJECT_USERNAME" "$CIRCLE_PROJECT_REPONAME" > version.json
 
     # build the actual deployment container
-    - docker build -t app:build app
+    - docker build -t app:build .
 
     # Clean up any old images; save the new one.
     - I="image-$(date +%j).tgz"; mkdir -p ~/docker; rm ~/docker/*; docker save app:build | gzip -c > ~/docker/$I; ls -l ~/docker
@@ -27,7 +27,7 @@ dependencies:
 # Run flake8 and the Python test suite via nose.
 test:
   override:
-    - docker run app:build sh -c 'cd / && flake8 /app --exclude=/app/src && nosetests --exclude=/app/src'
+    - docker run -d app:build sh -c 'flake8 . --exclude=app/src && nosetests --exclude-dir=app/src'
 
 
 # Tag and push the container to Docker Hub.
