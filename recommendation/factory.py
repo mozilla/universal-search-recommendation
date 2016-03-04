@@ -3,6 +3,7 @@ from flask import Flask
 
 from recommendation import conf
 from recommendation.cors import cors_headers
+from recommendation.views.dummy import dummy
 from recommendation.views.main import main
 from recommendation.views.static import static
 from recommendation.views.status import status
@@ -14,6 +15,10 @@ def create_app():
     app.register_blueprint(main)
     app.register_blueprint(static)
     app.register_blueprint(status)
+
+    # Use a dummy data generator while Yahoo BOSS access is being sorted out.
+    app.register_blueprint(dummy)
+
     app.config.update(
         CELERY_BROKER_URL=conf.CELERY_BROKER_URL,
         DEBUG=conf.DEBUG
