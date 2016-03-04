@@ -11,10 +11,10 @@ EMBEDLIES = [
         },
         'image': {
             'caption': '',
-            'height': 99,
-            'size': 99,
+            'height': 600,
+            'size': 11894,
             'url': 'https://developer.cdn.mozilla.net/static/img/opengraph-logo.dc4e08e2f6af.png',
-            'width': 99
+            'width': 600
         }
     },
     {
@@ -29,10 +29,10 @@ EMBEDLIES = [
         },
         'image': {
             'caption': '',
-            'height': 99,
-            'size': 99,
+            'height': 1200,
+            'size': 221340,
             'url': 'http://ia.media-imdb.com/images/M/MV5BMTc2MTQ3MDA1Nl5BMl5BanBnXkFtZTgwODA3OTI4NjE@._V1_UY1200_CR90,0,630,1200_AL_.jpg',
-            'width': 99
+            'width': 630
         }
     },
     {
@@ -47,10 +47,10 @@ EMBEDLIES = [
         },
         'image': {
             'caption': '',
-            'height': 99,
-            'size': 99,
+            'height': 1125,
+            'size': 102800,
             'url': 'https://assets.nflxext.com/ffe/siteui/acquisition/home/concord/aa/Family_TV_InHome001_2000x1125_small.jpg',
-            'width': 99
+            'width': 2000
         }
     },
     {
@@ -65,10 +65,10 @@ EMBEDLIES = [
         },
         'image': {
             'caption': '',
-            'height': 99,
-            'size': 99,
+            'height': 550,
+            'size': 70372,
             'url': 'http://static01.nyt.com/images/2016/01/11/business/11yahoo/11yahoo-facebookJumbo.jpg',
-            'width': 99
+            'width': 1050
         }
     },
     {
@@ -95,20 +95,20 @@ EMBEDLIES = [
         },
         'image': {
             'caption': '',
-            'height': 99,
-            'size': 99,
+            'height': 627,
+            'size': 182246,
             'url': 'https://www.mozilla.org/media/img/home/page-image.3af4522ff5e7.png',
-            'width': 99
+            'width': 1200
         }
     },
     {
         'favicon': {},
         'image': {
             'caption': '',
-            'height': 99,
-            'size': 99,
+            'height': 383,
+            'size': 61431,
             'url': 'http://www.dogbreedinfo.com/images25/LouisianaCatahoulaLeopardDogCurHogDogBuster2YearsOld1.jpg',
-            'width': 99
+            'width': 450
         }
     },
     {
@@ -126,6 +126,35 @@ EMBEDLIES = [
     {},
     {}
 ]
+
+DOMAINS = [
+    {
+        'fqdn': 'theguardian.com',
+        'logo': 'https://logo.clearbit.com/theguardian.com'
+    },
+    {
+        'fqdn': 'nyt.com',
+        'logo': 'https://logo.clearbit.com/nyt.com'
+    },
+    {
+        'fqdn': 'facebook.com',
+        'logo': 'https://logo.clearbit.com/facebook.com'
+    },
+    {
+        'fqdn': 'google.com',
+        'logo': 'https://logo.clearbit.com/google.com'
+    },
+    {
+        'fqdn': 'www.mozilla.com',
+        'logo': 'https://logo.clearbit.com/www.mozilla.com'
+    },
+    {},
+    {},
+    {},
+    {},
+    {},
+]
+
 RESULTS = [
     {
         'abstract': 'Search the world\'s information, including webpages, images, videos and more. Google has many special features to help you find exactly what you\'re looking for.',
