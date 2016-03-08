@@ -2,7 +2,7 @@ import random
 
 from flask import abort, Blueprint, jsonify, request
 
-from recommendation.views.data.dummy import EMBEDLIES, RESULTS
+from recommendation.views.data.dummy import DOMAINS, EMBEDLIES, RESULTS
 
 
 dummy = Blueprint('dummy', __name__)
@@ -16,7 +16,8 @@ def dummy_main():
     random.seed(query)
     return jsonify({
         'enhancements': {
-            'embedly': random.choice(EMBEDLIES)
+            'embedly': random.choice(EMBEDLIES),
+            'domain': random.choice(DOMAINS)
         },
         'query': {
             'completed': query,

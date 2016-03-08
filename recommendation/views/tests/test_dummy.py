@@ -22,6 +22,8 @@ class TestDummyViews(AppTestCase):
         response = self._query('hello')
         eq_(response.status_code, 200)
         ok_('enhancements' in response.json)
+        ok_(all([k in response.json['enhancements'] for k in
+                 ['embedly', 'domain']]))
         ok_('result' in response.json)
         ok_(all([k in response.json['result'] for k in
                  ['title', 'abstract', 'url']]))
