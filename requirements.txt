@@ -1,5 +1,5 @@
 bleach==1.4.2
-celery==3.1.22
+celery==3.1.23
 coverage==4.0.3
 coveralls==1.1
 flake8==2.5.4
