@@ -83,12 +83,12 @@ class TestEmbedlyClassifier(TestCase):
         return self._classifier(url)._api_url(self._result(url)['url'])
 
     def test_is_match(self):
-        eq_(self._matches('https://www.mozilla.com'), False)
-        eq_(self._matches('https://www.mozilla.com/'), False)
+        eq_(self._matches('https://www.mozilla.com'), True)
+        eq_(self._matches('https://www.mozilla.com/'), True)
         eq_(self._matches('https://www.mozilla.com/en_US'), True)
         eq_(self._matches('https://www.mozilla.com/en_US/'), True)
-        eq_(self._matches('https://wikipedia.org'), False)
-        eq_(self._matches('https://wikipedia.org/'), False)
+        eq_(self._matches('https://wikipedia.org'), True)
+        eq_(self._matches('https://wikipedia.org/'), True)
         eq_(self._matches('https://en.wikipedia.org/wiki/Mozilla'), True)
         eq_(self._matches('https://en.wikipedia.org/wiki/Mozilla/'), True)
 

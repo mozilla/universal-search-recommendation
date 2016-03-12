@@ -5,7 +5,6 @@ import requests
 from recommendation import conf
 from recommendation.memorize import memorize
 from recommendation.search.classification.base import BaseClassifier
-from recommendation.search.classification.wikipedia import WikipediaClassifier
 
 
 class EmbedlyClassifier(BaseClassifier):
@@ -40,13 +39,11 @@ class EmbedlyClassifier(BaseClassifier):
 
     def is_match(self, result):
         """
-        Apply the enhancer if the result URL is either a top-level directory on
-        a domain, or if it is a Wikipedia article.
+        Apply to all results, so we have maximum favicon access.
+
+        TODO: github.com/mozilla/universal-search-recommendation/issues/67
         """
-        path = self.url.path.strip('/')
-        if path and '/' not in path:
-            return True
-        return WikipediaClassifier(result).is_match(result)
+        return True
 
     def _api_url(self, url):
         return '%s?%s' % (self.api_url, urlencode({
