@@ -1,5 +1,5 @@
 from recommendation.search.classification import CLASSIFIERS
-from recommendation.search.query.yahoo import YahooQueryEngine
+from recommendation.search.query.bing import BingQueryEngine
 from recommendation.search.suggest.bing import BingSuggestionEngine
 
 
@@ -31,7 +31,7 @@ class SearchRecommendation(object):
         Determine and return the appropriate subclass of BaseQueryEngine to use
         to fetch results.
         """
-        return YahooQueryEngine
+        return BingQueryEngine
 
     def get_classifiers(self, result):
         """
