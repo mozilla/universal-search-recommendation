@@ -29,8 +29,7 @@ dependencies:
 # Run flake8 and the Python test suite via nose.
 test:
   override:
-    - docker run -d app:build sh -c 'flake8 . --exclude=app/src && nosetests --exclude-dir=app/src'
-
+    - docker run app:build test
 
 # Tag and push the container to Docker Hub.
 deployment:
