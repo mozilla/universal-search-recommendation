@@ -2,7 +2,7 @@
 
 Recommendation server for the [Universal Search](https://wiki.mozilla.org/Firefox/Universal_Search) [Test Pilot](https://wiki.mozilla.org/Test_Pilot) add-on.
 
-[![Build Status](https://img.shields.io/circleci/project/mozilla/universal-search-recommendation.svg)](https://circleci.com/gh/mozilla/universal-search-recommendation) [![Test Coverage](https://img.shields.io/coveralls/mozilla/universal-search-recommendation/master.svg)](https://coveralls.io/github/mozilla/universal-search-recommendation?branch=master) [![Requirements](https://img.shields.io/requires/github/mozilla/universal-search-recommendation.svg)](https://requires.io/github/mozilla/universal-search-recommendation/requirements/?branch=master)
+[![Available on Test Pilot](https://img.shields.io/badge/available_on-Test_Pilot-0996F8.svg)](https://testpilot.firefox.com/experiments/universal-search) [![Build Status](https://img.shields.io/circleci/project/mozilla/universal-search-recommendation.svg)](https://circleci.com/gh/mozilla/universal-search-recommendation) [![Test Coverage](https://img.shields.io/coveralls/mozilla/universal-search-recommendation/master.svg)](https://coveralls.io/github/mozilla/universal-search-recommendation?branch=master) [![Requirements](https://img.shields.io/requires/github/mozilla/universal-search-recommendation.svg)](https://requires.io/github/mozilla/universal-search-recommendation/requirements/?branch=master)
 
 
 ## Documentation
