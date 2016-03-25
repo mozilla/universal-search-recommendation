@@ -5,8 +5,8 @@ from urllib.parse import parse_qs, urlparse
 import responses
 from nose.tools import eq_, ok_
 
-from recommendation.search.classification.embedly import (EmbedlyClassifier,
-                                                          FaviconClassifier)
+from recommendation.search.classification.embedly import (
+    BaseEmbedlyClassifier, FaviconClassifier, KeyImageClassifier)
 from recommendation.tests.memcached import mock_memcached
 
 
@@ -63,10 +63,15 @@ MOCK_RESPONSE = {
     'type': 'html',
     'url': 'https://en.wikipedia.org/wiki/The_Martian_(Weir_novel)'
 }
+MOCK_IMAGE_RESPONSE = {
+    'height': MOCK_RESPONSE['images'][0]['height'],
+    'url': MOCK_RESPONSE['images'][0]['url'],
+    'width': MOCK_RESPONSE['images'][0]['width'],
+}
 
 
-class BaseTestEmbedlyClassifier(TestCase):
-    classifier_class = EmbedlyClassifier
+class TestBaseEmbedlyClassifier(TestCase):
+    classifier_class = BaseEmbedlyClassifier
 
     def tearDown(self):
         mock_memcached.flush_all()
@@ -79,35 +84,23 @@ class BaseTestEmbedlyClassifier(TestCase):
     def _classifier(self, url):
         return self.classifier_class(self._result(url))
 
-    def _matches(self, url):
-        return self._classifier(url).is_match(self._result(url))
-
     def _api_url(self, url):
         return self._classifier(url)._api_url(self._result(url)['url'])
 
-
-class TestEmbedlyClassifier(BaseTestEmbedlyClassifier):
     def test_is_match(self):
-        eq_(self._matches('https://www.mozilla.com'), False)
-        eq_(self._matches('https://www.mozilla.com/'), False)
-        eq_(self._matches('https://www.mozilla.com/en_US'), True)
-        eq_(self._matches('https://www.mozilla.com/en_US/'), True)
-        eq_(self._matches('https://wikipedia.org'), False)
-        eq_(self._matches('https://wikipedia.org/'), False)
-        eq_(self._matches('https://en.wikipedia.org/wiki/Mozilla'), True)
-        eq_(self._matches('https://en.wikipedia.org/wiki/Mozilla/'), True)
+        eq_(self._classifier(MOCK_RESULT_URL).is_match(MOCK_RESPONSE), True)
 
     @patch('recommendation.conf.EMBEDLY_API_KEY', MOCK_API_KEY)
     def test_api_url(self):
         api_url = self._api_url(MOCK_RESULT_URL)
         api_qs = parse_qs(urlparse(api_url).query)
-        ok_(api_url.startswith(EmbedlyClassifier.api_url))
+        ok_(api_url.startswith(self.classifier_class.api_url))
         eq_(api_qs['key'][0], MOCK_API_KEY)
         eq_(api_qs['url'][0], MOCK_RESULT_URL)
         eq_(api_qs['secure'][0], 'true')
 
     @patch('recommendation.memorize.memcached', mock_memcached)
-    @patch('recommendation.search.classification.embedly.EmbedlyClassifier'
+    @patch('recommendation.search.classification.embedly.BaseEmbedlyClassifier'
            '._api_url')
     @responses.activate
     def test_api_response(self, mock_api_url):
@@ -122,33 +115,9 @@ class TestEmbedlyClassifier(BaseTestEmbedlyClassifier):
         eq_(response_cold.cache_key, response_warm.cache_key)
         eq_(response_cold, response_warm, MOCK_RESPONSE)
 
-    @patch('recommendation.memorize.memcached', mock_memcached)
-    @patch('recommendation.search.classification.embedly.EmbedlyClassifier'
-           '._api_url')
-    @responses.activate
-    def test_enhance(self, mock_api_url):
-        mock_api_url.return_value = MOCK_API_URL
-        responses.add(responses.GET, MOCK_API_URL, json=MOCK_RESPONSE,
-                      status=200)
-        enhanced = self._classifier(MOCK_RESULT_URL).enhance()
-        eq_(enhanced['image'], MOCK_RESPONSE['images'][0])
 
-    @patch('recommendation.search.classification.embedly.EmbedlyClassifier'
-           '._api_response')
-    @patch('recommendation.search.classification.embedly.EmbedlyClassifier'
-           '._get_image')
-    def test_enhance_no_images(self, mock_get_image, mock_api_response):
-        mock_api_response.return_value = MOCK_RESPONSE
-        mock_get_image.side_effect = KeyError
-        enhanced = self._classifier(MOCK_RESULT_URL).enhance()
-        eq_(enhanced['image'], None)
-
-
-class TestFaviconClassifier(BaseTestEmbedlyClassifier):
+class TestFaviconClassifier(TestBaseEmbedlyClassifier):
     classifier_class = FaviconClassifier
-
-    def test_is_match(self):
-        eq_(self._classifier(MOCK_RESULT_URL).is_match(MOCK_RESPONSE), True)
 
     def test_get_color(self):
         eq_(self._classifier(MOCK_RESULT_URL)._get_color(MOCK_RESPONSE),
@@ -178,5 +147,30 @@ class TestFaviconClassifier(BaseTestEmbedlyClassifier):
     def test_enhance_no_url(self, mock_get_url, mock_api_response):
         mock_api_response.return_value = MOCK_RESPONSE
         mock_get_url.return_value = None
+        enhanced = self._classifier(MOCK_RESULT_URL).enhance()
+        eq_(enhanced, {})
+
+
+class TestKeyImageClassifier(TestBaseEmbedlyClassifier):
+    classifier_class = KeyImageClassifier
+
+    @patch('recommendation.memorize.memcached', mock_memcached)
+    @patch('recommendation.search.classification.embedly.KeyImageClassifier'
+           '._api_url')
+    @responses.activate
+    def test_enhance(self, mock_api_url):
+        mock_api_url.return_value = MOCK_API_URL
+        responses.add(responses.GET, MOCK_API_URL, json=MOCK_RESPONSE,
+                      status=200)
+        enhanced = self._classifier(MOCK_RESULT_URL).enhance()
+        eq_(enhanced, MOCK_IMAGE_RESPONSE)
+
+    @patch('recommendation.search.classification.embedly.KeyImageClassifier'
+           '._api_response')
+    @patch('recommendation.search.classification.embedly.KeyImageClassifier'
+           '._get_image')
+    def test_enhance_no_images(self, mock_get_image, mock_api_response):
+        mock_api_response.return_value = MOCK_RESPONSE
+        mock_get_image.side_effect = KeyError
         enhanced = self._classifier(MOCK_RESULT_URL).enhance()
         eq_(enhanced, {})
