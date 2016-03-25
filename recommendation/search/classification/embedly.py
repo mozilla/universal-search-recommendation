@@ -5,22 +5,13 @@ import requests
 from recommendation import conf
 from recommendation.memorize import memorize
 from recommendation.search.classification.base import BaseClassifier
+from recommendation.search.classification.wikipedia import WikipediaClassifier
 
 
 class EmbedlyClassifier(BaseClassifier):
     """
     Classifier that adds data about the result from Embedly:
 
-    favicon.colors - a list of prominent colors used in the favicon, taking the
-        form:
-        {
-            'color': [r, g, b],
-            'weight': 0.4526367188
-        }
-        , where `rgb` are ints on a 0-255 scale representing the color, and
-        weight is a float between 0 and 1 representing the prominence of the
-        color in the image.
-    favicon.url - a URL to the favicon.
     image - additional data about a key image on the page, taking the form:
         {
             'caption': caption,
@@ -39,11 +30,13 @@ class EmbedlyClassifier(BaseClassifier):
 
     def is_match(self, result):
         """
-        Apply to all results, so we have maximum favicon access.
-
-        TODO: github.com/mozilla/universal-search-recommendation/issues/67
+        Apply the enhancer if the result URL is either a top-level directory on
+        a domain, or if it is a Wikipedia article.
         """
-        return True
+        path = self.url.path.strip('/')
+        if path and '/' not in path:
+            return True
+        return WikipediaClassifier(result).is_match(result)
 
     def _api_url(self, url):
         return '%s?%s' % (self.api_url, urlencode({
@@ -67,9 +60,37 @@ class EmbedlyClassifier(BaseClassifier):
         except (KeyError, IndexError):
             image = None
         return {
-            'favicon': {
-                'colors': api_data.get('favicon_colors', None),
-                'url': api_data.get('favicon_url', None)
-            },
             'image': image
+        }
+
+
+class FaviconClassifier(EmbedlyClassifier):
+    """
+    Classifier that adds favicon data from Embedly:
+
+    color - the most prominent color in the favicon, taking the form
+        `[r, g, b]`, where `r`, `g`, and `b` are ints on a 0-255 scale
+        representing the red, green, and blue values of that color.
+    url - a URL to the favicon.
+    """
+    type = 'favicon'
+
+    def is_match(self, result):
+        return True
+
+    def _get_color(self, api_data):
+        colors = api_data.get('favicon_colors', None)
+        return colors[0]['color'] if colors else None
+
+    def _get_url(self, api_data):
+        return api_data.get('favicon_url', None)
+
+    def enhance(self):
+        api_data = self._api_response(self.result['url'])
+        favicon_url = self._get_url(api_data)
+        if not favicon_url:
+            return {}
+        return {
+            'color': self._get_color(api_data),
+            'url': favicon_url,
         }

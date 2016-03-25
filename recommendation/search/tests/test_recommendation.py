@@ -37,15 +37,12 @@ class TestSearchRecommendation(TestCase):
 
     @patch('recommendation.search.classification.domain.DomainClassifier'
            '.is_match')
-    @patch('recommendation.search.classification.embedly.EmbedlyClassifier'
-           '.is_match')
-    def test_get_classifiers(self, mock_domain_match, mock_embedly_match):
-        mock_embedly_match.return_value = True
-        mock_domain_match.return_value = False
+    def test_get_classifiers(self, mock_match):
+        mock_match.return_value = True
         classifiers = self.instance.get_classifiers({
             'url': 'http://%s/' % DOMAIN
         })
-        eq_(len(classifiers), 1)
+        eq_(len(classifiers), 2)
         ok_(isinstance(classifiers[0], DomainClassifier))
         return classifiers
 
