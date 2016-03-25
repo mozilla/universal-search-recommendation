@@ -52,33 +52,41 @@ class TestStatusViews(AppTestCase):
         eq_(mock_celery.call_count, 1)
         eq_(mock_memcached.call_count, 1)
         eq_(mock_redis.call_count, 1)
+        ok_(response.json, {
+            'celery': True,
+            'memcached': True,
+            'redis': True
+        })
 
-    @patch('recommendation.views.status.celery_status')
-    @patch('recommendation.views.status.memcached_status')
     @patch('recommendation.views.status.redis_status')
+    @patch('recommendation.views.status.memcached_status')
+    @patch('recommendation.views.status.celery_status')
     def test_heartbeat_celery(self, mock_celery, mock_memcached, mock_redis):
         mock_celery.side_effect = ServiceDown
         response = self.client.get('/__heartbeat__')
         eq_(response.status_code, 500)
+        eq_(response.json['celery'], False)
         eq_(mock_celery.call_count, 1)
 
-    @patch('recommendation.views.status.celery_status')
-    @patch('recommendation.views.status.memcached_status')
     @patch('recommendation.views.status.redis_status')
+    @patch('recommendation.views.status.memcached_status')
+    @patch('recommendation.views.status.celery_status')
     def test_heartbeat_memcached(self, mock_celery, mock_memcached,
                                  mock_redis):
         mock_memcached.side_effect = ServiceDown
         response = self.client.get('/__heartbeat__')
         eq_(response.status_code, 500)
+        eq_(response.json['memcached'], False)
         eq_(mock_memcached.call_count, 1)
 
-    @patch('recommendation.views.status.celery_status')
-    @patch('recommendation.views.status.memcached_status')
     @patch('recommendation.views.status.redis_status')
+    @patch('recommendation.views.status.memcached_status')
+    @patch('recommendation.views.status.celery_status')
     def test_heartbeat_redis(self, mock_celery, mock_memcached, mock_redis):
         mock_redis.side_effect = ServiceDown
         response = self.client.get('/__heartbeat__')
         eq_(response.status_code, 500)
+        eq_(response.json['redis'], False)
         eq_(mock_redis.call_count, 1)
 
     @patch('recommendation.views.status.memcached.set')

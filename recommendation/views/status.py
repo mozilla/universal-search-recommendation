@@ -1,7 +1,7 @@
 from os import path
 
 from celery.app.control import Control
-from flask import abort, Blueprint, send_file
+from flask import Blueprint, jsonify, send_file
 from redis.exceptions import ConnectionError as RedisConnectionError
 
 from recommendation.memcached import memcached
@@ -71,10 +71,21 @@ def heartbeat():
     Returns a 500 if any raise ServiceDown, otherwise returns a 200 with an
     empty body.
     """
+    celery, memcached, redis = True, True, True
     try:
-        memcached_status()
-        redis_status()
         celery_status()
     except ServiceDown:
-        abort(500)
-    return ('', 200)
+        celery = False
+    try:
+        memcached_status()
+    except ServiceDown:
+        memcached = False
+    try:
+        redis_status()
+    except ServiceDown:
+        redis = False
+    return jsonify({
+        'celery': celery,
+        'memcached': memcached,
+        'redis': redis
+    }), (200 if all([celery, memcached, redis]) else 500)
