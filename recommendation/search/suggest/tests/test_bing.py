@@ -37,3 +37,6 @@ class TestBingSuggestionEngine(TestCase):
 
     def test_sanitize(self):
         eq_(self.instance.sanitize(RESPONSE), RESULTS)
+
+    def test_sanitize_malformed_results(self):
+        eq_(self.instance.sanitize({}), [QUERY])

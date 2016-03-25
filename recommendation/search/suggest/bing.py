@@ -23,5 +23,12 @@ class BingSuggestionEngine(BaseSuggestionEngine):
         Normalizes an OpenSearch response that looks like:
 
         ['original query', ['list of', 'suggestions']]
+
+        If the top result is equal to the top search suggestion, Bing sometimes
+        tries to be helpful and returns full web search results. In that case,
+        let's return a single-item array containing the original query.
         """
-        return results[1]
+        try:
+            return results[1]
+        except KeyError:
+            return [self.query]
