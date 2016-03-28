@@ -42,7 +42,7 @@ class TestSearchRecommendation(TestCase):
         classifiers = self.instance.get_classifiers({
             'url': 'http://%s/' % DOMAIN
         })
-        eq_(len(classifiers), 2)
+        eq_(len(classifiers), 3)
         ok_(isinstance(classifiers[0], DomainClassifier))
         return classifiers
 
