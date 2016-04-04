@@ -3,8 +3,10 @@ from unittest import TestCase
 from mock import patch
 from nose.tools import eq_, ok_
 
-from recommendation.search.classification.domain import DomainClassifier
-from recommendation.search.classification.tests.test_domain import DOMAIN
+from recommendation.search.classification.logo import LogoClassifier
+from recommendation.search.classification.embedly import (FaviconClassifier,
+                                                          KeyImageClassifier)
+from recommendation.search.classification.tests.test_logo import DOMAIN
 from recommendation.search.recommendation import SearchRecommendation
 from recommendation.search.suggest.base import BaseSuggestionEngine
 from recommendation.search.suggest.bing import BingSuggestionEngine
@@ -35,7 +37,7 @@ class TestSearchRecommendation(TestCase):
         engine = self.instance.get_query_engine()
         ok_(issubclass(engine, BaseQueryEngine))
 
-    @patch('recommendation.search.classification.domain.DomainClassifier'
+    @patch('recommendation.search.classification.logo.LogoClassifier'
            '.is_match')
     def test_get_classifiers(self, mock_match):
         mock_match.return_value = True
@@ -43,7 +45,11 @@ class TestSearchRecommendation(TestCase):
             'url': 'http://%s/' % DOMAIN
         })
         eq_(len(classifiers), 3)
-        ok_(isinstance(classifiers[0], DomainClassifier))
+
+        classifier_classes = [FaviconClassifier, KeyImageClassifier,
+                              LogoClassifier]
+        for index, classifier in enumerate(classifiers):
+            ok_(isinstance(classifier, classifier_classes[index]))
         return classifiers
 
     @patch(('recommendation.search.recommendation.SearchRecommendation'
@@ -83,7 +89,7 @@ class TestSearchRecommendation(TestCase):
         suggestions = BING_RESULTS
         top_suggestion = BING_RESULTS[0]
         result = YAHOO_RESPONSE['bossresponse']['web']['results'][0]
-        classifiers = [DomainClassifier(result)]
+        classifiers = [LogoClassifier(result)]
 
         mock_suggestions.return_value = suggestions
         mock_top_suggestion.return_value = top_suggestion
@@ -94,7 +100,7 @@ class TestSearchRecommendation(TestCase):
 
         ok_(all([k in search for k in ['enhancements', 'query', 'result']]))
         eq_(list(search['enhancements'].keys()), [c.type for c in classifiers])
-        eq_(search['enhancements']['domain'], classifiers[0].enhance())
+        eq_(search['enhancements']['logo'], classifiers[0].enhance())
         eq_(search['query']['completed'], top_suggestion)
         eq_(search['query']['original'], QUERY)
         eq_(search['result'], result)
