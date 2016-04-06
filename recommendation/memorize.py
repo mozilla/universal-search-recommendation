@@ -5,6 +5,7 @@ from inspect import getargspec
 
 from wrapt import ObjectProxy
 
+from recommendation.conf import MEMCACHED_TTL
 from recommendation.memcached import memcached
 
 
@@ -85,7 +86,7 @@ class memorize(object):
     author.from_cache            # False
     author.cache_key             # 'memorize_cd2db0e4dc383ea0c5643ce6478612a3'
     """
-    def __init__(self, prefix='memorized', ttl=0):
+    def __init__(self, prefix='memorized', ttl=MEMCACHED_TTL):
         self.prefix = prefix
         self.ttl = ttl
 

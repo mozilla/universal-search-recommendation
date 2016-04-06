@@ -3,6 +3,7 @@ from urllib.parse import urlencode
 from mock import patch
 from nose.tools import eq_, ok_
 
+from recommendation.conf import CACHE_TTL
 from recommendation.cors import cors_headers
 from recommendation.tests.memcached import mock_memcached
 from recommendation.tests.util import AppTestCase
@@ -33,6 +34,13 @@ class TestMain(AppTestCase):
         })
         return self._get(url)
 
+    def _cached(self, response):
+        ok_('max-age=%d' % CACHE_TTL in response.headers['Cache-Control'])
+
+    def _not_cached(self, response):
+        ok_('no-cache' in response.headers['Cache-Control'])
+        ok_('must-revalidate' in response.headers['Cache-Control'])
+
     def test_cors(self):
         headers = [
             'Access-Control-Allow-Headers',
@@ -46,7 +54,9 @@ class TestMain(AppTestCase):
                  for header in headers]))
 
     def test_no_query(self):
-        eq_(self._get('/').status_code, 400)
+        response = self._get('/')
+        eq_(response.status_code, 400)
+        self._not_cached(response)
 
     @patch('recommendation.tasks.task_recommend.memcached.get')
     def test_exception(self, mock_get):
@@ -54,19 +64,24 @@ class TestMain(AppTestCase):
         response = self._query(QUERY)
         eq_(response.status_code, 500)
         eq_(response.json, {})
+        self._not_cached(response)
 
     @patch('recommendation.tasks.task_recommend.memcached.get')
     def test_cache_hit(self, mock_get):
         mock_get.return_value = RESULTS
-        eq_(self._query(QUERY).status_code, 200)
-        eq_(self._query(QUERY).json, RESULTS)
+        response = self._query(QUERY)
+        eq_(response.status_code, 200)
+        eq_(response.json, RESULTS)
+        self._cached(response)
 
     @patch('recommendation.tasks.task_recommend.memcached.get')
     @patch('recommendation.tasks.task_recommend.recommend.delay')
     def test_cache_miss(self, mock_delay, mock_get):
         mock_get.return_value = None
-        eq_(self._query(QUERY).status_code, 202)
+        response = self._query(QUERY)
+        eq_(response.status_code, 202)
         eq_(mock_delay.call_count, 1)
+        self._not_cached(response)
 
 
 class TestMainDebug(TestMain):
@@ -79,5 +94,6 @@ class TestMainDebug(TestMain):
         response = self._query(QUERY)
         exception_name = list(response.json.keys())[0]
         eq_(response.status_code, 500)
+        self._not_cached(response)
         eq_(exception_name, EXCEPTION.__class__.__name__)
         eq_(response.json[exception_name], EXCEPTION_ARGS)
