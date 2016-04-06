@@ -4,6 +4,9 @@ from os import environ as env
 DEBUG = env.get('RECOMMENDATION_ENV', 'development') == 'development'
 KEY_PREFIX = env.get('RECOMMENDATION_KEY_PREFIX', 'query_')
 
+CACHE_TTL = env.get('RECOMMENDATION_CACHE_TTL', 7 * 24 * 60 * 60)
+MEMCACHED_TTL = env.get('RECOMMENDATION_MEMCACHED_TTL', CACHE_TTL)
+
 BING_ACCOUNT_KEY = env.get('BING_ACCOUNT_KEY', '')
 EMBEDLY_API_KEY = env.get('EMBEDLY_API_KEY', '')
 YAHOO_OAUTH_KEY = env.get('YAHOO_OAUTH_KEY', '')
