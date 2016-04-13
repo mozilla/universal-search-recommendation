@@ -13,7 +13,7 @@ status = Blueprint('status', __name__)
 
 
 redis_cxn = redis.Redis(host=conf.REDIS_HOST, port=conf.REDIS_PORT,
-                        db=conf.REDIS_DB)
+                        db=conf.REDIS_DB, socket_timeout=conf.REDIS_TIMEOUT)
 
 
 @status.route('/__version__')

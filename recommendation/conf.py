@@ -25,5 +25,6 @@ else:
     REDIS_DB = env.get('REDIS_DB', 0)
     MEMCACHED_HOST = env.get('MEMCACHED_HOST', 'memcached:11211')
 
+REDIS_TIMEOUT = env.get('REDIS_TIMEOUT', 30)
 CELERY_BROKER_URL = env.get('CELERY_BROKER_URL', 'redis://%s:%d/%d' %
                             (REDIS_HOST, REDIS_PORT, REDIS_DB))
