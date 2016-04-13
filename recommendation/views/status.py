@@ -1,14 +1,19 @@
 from os import path
 
+import redis
 from celery.app.control import Control
 from flask import Blueprint, jsonify, send_file
-from redis.exceptions import ConnectionError as RedisConnectionError
 
+from recommendation import conf
 from recommendation.memcached import memcached
 from recommendation.views.static import STATIC_DIR
 
 
 status = Blueprint('status', __name__)
+
+
+redis_cxn = redis.Redis(host=conf.REDIS_HOST, port=conf.REDIS_PORT,
+                        db=conf.REDIS_DB)
 
 
 @status.route('/__version__')
@@ -37,14 +42,16 @@ def memcached_status():
 def redis_status():
     """
     Raises ServiceDown if the Redis server used as a celery broker is down.
-    Since our application should not have access to the Redis server, we test
-    this by instantiating a Celery Control and attempting to ping it.
+    `Redis().ping()` returns `True` if the server is stable, `False` if not,
+    and raises `RedisConnectionError` if unavailable.
     """
-    from recommendation.factory import create_queue
     try:
-        Control(app=create_queue()).ping(timeout=1)
-    except RedisConnectionError:
+        ping = redis_cxn.ping()
+    except redis.exceptions.ConnectionError:
         raise ServiceDown()
+    else:
+        if not ping:
+            raise ServiceDown()
 
 
 def celery_status():

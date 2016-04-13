@@ -1,9 +1,9 @@
 import json
 from os import path
 
+import redis
 from mock import patch
 from nose.tools import eq_, ok_
-from redis.exceptions import ConnectionError as RedisError
 
 from recommendation.views.static import STATIC_DIR
 from recommendation.views.status import (celery_status, memcached_status,
@@ -101,14 +101,21 @@ class TestStatusViews(AppTestCase):
         with self.assertRaises(ServiceDown):
             memcached_status()
 
-    @patch('recommendation.views.status.Control.ping')
+    @patch('recommendation.views.status.redis_cxn.ping')
     def test_redis_status_pass(self, mock_ping):
+        mock_ping.return_value = True
         redis_status()
         self.assert_(True)
 
-    @patch('recommendation.views.status.Control.ping')
+    @patch('recommendation.views.status.redis_cxn.ping')
     def test_redis_status_fail(self, mock_ping):
-        mock_ping.side_effect = RedisError
+        mock_ping.return_value = False
+        with self.assertRaises(ServiceDown):
+            redis_status()
+
+    @patch('recommendation.views.status.redis_cxn.ping')
+    def test_redis_status_error(self, mock_ping):
+        mock_ping.side_effect = redis.exceptions.ConnectionError
         with self.assertRaises(ServiceDown):
             redis_status()
 

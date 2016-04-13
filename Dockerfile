@@ -12,6 +12,7 @@ WORKDIR /app
 
 # Install libmemcached-dev, whose C libraries are required by pylibmc.
 RUN apt-get -qq update && \
+    apt-get -qq install -y net-tools && \
     apt-get -qq install -y libmemcached-dev=1.0.18-4
 
 COPY ./requirements.txt /app/requirements.txt
