@@ -1,5 +1,6 @@
 from os import path
 
+import kombu
 import redis
 from celery.app.control import Control
 from flask import Blueprint, jsonify, send_file
@@ -10,10 +11,6 @@ from recommendation.views.static import STATIC_DIR
 
 
 status = Blueprint('status', __name__)
-
-
-redis_cxn = redis.Redis(host=conf.REDIS_HOST, port=conf.REDIS_PORT,
-                        db=conf.REDIS_DB, socket_timeout=conf.REDIS_TIMEOUT)
 
 
 @status.route('/__version__')
@@ -45,13 +42,13 @@ def redis_status():
     `Redis().ping()` returns `True` if the server is stable, `False` if not,
     and raises `RedisConnectionError` if unavailable.
     """
+    cxn = kombu.Connection(conf.CELERY_BROKER_URL)
     try:
-        ping = redis_cxn.ping()
+        cxn.connect()
     except redis.exceptions.ConnectionError:
         raise ServiceDown()
     else:
-        if not ping:
-            raise ServiceDown()
+        cxn.close()
 
 
 def celery_status():
@@ -60,15 +57,15 @@ def celery_status():
     have no workers, or if any workers are down.
     """
     from recommendation.factory import create_queue
-    clusters = Control(app=create_queue()).ping(timeout=1)
-    if not clusters:
-        raise ServiceDown()
-    for cluster in clusters:
-        if not cluster:
+    control = Control(app=create_queue())
+    try:
+        up = control.ping()
+        if not up:
             raise ServiceDown()
-        for host, status in cluster.items():
-            if 'ok' not in status or status['ok'] != 'pong':
-                raise ServiceDown()
+
+    # Redis connection errors will be handled by `redis_status`.
+    except redis.exceptions.ConnectionError:
+        pass
 
 
 @status.route('/__heartbeat__')

@@ -20,11 +20,11 @@ if DEBUG and RECOMMENDATION_SERVICES:
     REDIS_DB = 0
     MEMCACHED_HOST = '%s:11211' % RECOMMENDATION_SERVICES
 else:
-    REDIS_HOST = env.get('REDIS_HOST', 'localhost')
-    REDIS_PORT = env.get('REDIS_PORT', 6379)
-    REDIS_DB = env.get('REDIS_DB', 0)
+    REDIS_HOST = env.get('RECOMMENDATION_REDIS_HOST', 'redis')
+    REDIS_PORT = int(env.get('RECOMMENDATION_REDIS_PORT', 6379))
+    REDIS_DB = int(env.get('RECOMMENDATION_REDIS_DB', 0))
     MEMCACHED_HOST = env.get('MEMCACHED_HOST', 'memcached:11211')
 
-REDIS_TIMEOUT = env.get('REDIS_TIMEOUT', 30)
+REDIS_TIMEOUT = env.get('RECOMMENDATION_REDIS_TIMEOUT', 10)
 CELERY_BROKER_URL = env.get('CELERY_BROKER_URL', 'redis://%s:%d/%d' %
                             (REDIS_HOST, REDIS_PORT, REDIS_DB))

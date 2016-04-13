@@ -4,6 +4,7 @@ from sys import stdout
 from celery import Celery
 from flask import Flask
 
+from recommendation import celeryconfig
 from recommendation import conf
 from recommendation.cors import cors_headers
 from recommendation.mozlog.formatter import MozLogFormatter
@@ -52,6 +53,7 @@ def create_queue(app=None):
 
     queue = Celery(app.import_name, broker=app.config['CELERY_BROKER_URL'])
     queue.conf.update(app.config)
+    queue.config_from_object(celeryconfig)
     TaskBase = queue.Task
 
     class ContextTask(TaskBase):

@@ -1,8 +1,1 @@
-from os import environ as env
-
-
-BROKER_POOL_LIMIT = env.get('CELERY_BROKER_POOL_LIMIT', 10)
-BROKER_TRANSPORT_OPTIONS = {
-    'socket_timeout': env.get('CELERY_BROKER_TIMEOUT_OPTIONS', None)
-}
-CELERY_REDIS_MAX_CONNECTIONS = env.get('CELERY_REDIS_MAX_CONNECTIONS', None)
+BROKER_POOL_LIMIT = 0
