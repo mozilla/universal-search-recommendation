@@ -1,7 +1,7 @@
 import json
 from time import time
+from unittest.mock import MagicMock, patch
 
-from mock import MagicMock, patch
 from nose.tools import eq_, ok_
 
 from recommendation.mozlog.middleware import request_summary, request_timer

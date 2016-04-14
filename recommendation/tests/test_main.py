@@ -1,7 +1,7 @@
 from urllib.parse import urlencode
+from unittest.mock import patch
 
 from flask.ext.testing import TestCase as FlaskTestCase
-from mock import patch
 from nose.tools import eq_, ok_
 
 from recommendation.cors import cors_headers

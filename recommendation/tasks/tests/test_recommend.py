@@ -1,6 +1,6 @@
 from unittest import TestCase
+from unittest.mock import patch
 
-from mock import patch
 from nose.tools import eq_
 
 from recommendation.tests.memcached import mock_memcached
