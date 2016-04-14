@@ -1,8 +1,8 @@
 from unittest import TestCase
+from unittest.mock import patch
 from urllib.parse import ParseResult
 
 import responses
-from mock import patch
 from nose.tools import eq_, ok_
 
 from recommendation.search.classification.logo import LogoClassifier

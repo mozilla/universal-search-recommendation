@@ -1,7 +1,7 @@
 from unittest import TestCase
+from unittest.mock import patch
 
 from celery.app.base import Celery
-from mock import patch
 from nose.tools import eq_, ok_
 
 from recommendation.cors import cors_headers

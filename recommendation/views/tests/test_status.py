@@ -1,7 +1,7 @@
 import json
 from os import path
+from unittest.mock import patch
 
-from mock import patch
 from nose.tools import eq_, ok_
 from redis.exceptions import ConnectionError as RedisError
 

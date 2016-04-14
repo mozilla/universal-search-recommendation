@@ -1,7 +1,7 @@
 from unittest import TestCase
+from unittest.mock import patch
 
 import responses
-from mock import patch
 from nose.tools import eq_, ok_
 
 from recommendation.search.suggest.bing import BingSuggestionEngine

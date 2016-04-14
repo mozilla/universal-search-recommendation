@@ -1,6 +1,6 @@
 from urllib.parse import urlencode
+from unittest.mock import patch
 
-from mock import patch
 from nose.tools import eq_, ok_
 
 from recommendation.conf import CACHE_TTL
