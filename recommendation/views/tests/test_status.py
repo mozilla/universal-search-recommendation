@@ -5,6 +5,7 @@ from mock import patch
 from nose.tools import eq_, ok_
 from redis.exceptions import ConnectionError as RedisError
 
+from recommendation.factory import create_queue
 from recommendation.views.static import STATIC_DIR
 from recommendation.views.status import (celery_status, memcached_status,
                                          redis_status, ServiceDown)
@@ -103,35 +104,35 @@ class TestStatusViews(AppTestCase):
 
     @patch('recommendation.views.status.Control.ping')
     def test_redis_status_pass(self, mock_ping):
-        redis_status()
+        redis_status(create_queue())
         self.assert_(True)
 
     @patch('recommendation.views.status.Control.ping')
     def test_redis_status_fail(self, mock_ping):
         mock_ping.side_effect = RedisError
         with self.assertRaises(ServiceDown):
-            redis_status()
+            redis_status(create_queue())
 
     @patch('recommendation.views.status.Control.ping')
     def test_celery_status_pass(self, mock_ping):
         mock_ping.return_value = MEMCACHED_PING_OK
-        celery_status()
+        celery_status(create_queue())
         self.assert_(True)
 
     @patch('recommendation.views.status.Control.ping')
     def test_celery_status_no_workers(self, mock_ping):
         mock_ping.return_value = MEMCACHED_PING_NO_WORKERS
         with self.assertRaises(ServiceDown):
-            celery_status()
+            celery_status(create_queue())
 
     @patch('recommendation.views.status.Control.ping')
     def test_celery_status_no_clusters(self, mock_ping):
         mock_ping.return_value = MEMCACHED_PING_NO_CLUSTERS
         with self.assertRaises(ServiceDown):
-            celery_status()
+            celery_status(create_queue())
 
     @patch('recommendation.views.status.Control.ping')
     def test_celery_status_workers_down(self, mock_ping):
         mock_ping.return_value = MEMCACHED_PING_BAD
         with self.assertRaises(ServiceDown):
-            celery_status()
+            celery_status(create_queue())
