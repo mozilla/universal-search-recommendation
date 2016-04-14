@@ -1,9 +1,9 @@
 import json
 from os import path
 
-import redis
 from mock import patch
 from nose.tools import eq_, ok_
+from redis.exceptions import ConnectionError as RedisError
 
 from recommendation.views.static import STATIC_DIR
 from recommendation.views.status import (celery_status, memcached_status,
@@ -11,12 +11,24 @@ from recommendation.views.status import (celery_status, memcached_status,
 from recommendation.tests.util import AppTestCase
 
 
-CELERY_WORKER_OK = {'ok': 'pong'}
-CELERY_PING_NO_CLUSTERS = []
-CELERY_PING_OK = [{
-    'host1': CELERY_WORKER_OK,
-    'host2': CELERY_WORKER_OK
-}]
+MEMCACHED_WORKER_BAD = {'not ok': 'not pong'}
+MEMCACHED_WORKER_OK = {'ok': 'pong'}
+
+MEMCACHED_CLUSTER_BAD = {
+    'host1': MEMCACHED_WORKER_OK,
+    'host2': MEMCACHED_WORKER_BAD
+}
+MEMCACHED_CLUSTER_NO_WORKERS = {}
+MEMCACHED_CLUSTER_OK = {
+    'host1': MEMCACHED_WORKER_OK,
+    'host2': MEMCACHED_WORKER_OK
+}
+
+MEMCACHED_PING_BAD = [MEMCACHED_CLUSTER_OK, MEMCACHED_CLUSTER_BAD]
+MEMCACHED_PING_NO_CLUSTERS = []
+MEMCACHED_PING_NO_WORKERS = [MEMCACHED_CLUSTER_OK,
+                             MEMCACHED_CLUSTER_NO_WORKERS]
+MEMCACHED_PING_OK = [MEMCACHED_CLUSTER_OK, MEMCACHED_CLUSTER_OK]
 
 
 class TestStatusViews(AppTestCase):
@@ -89,31 +101,37 @@ class TestStatusViews(AppTestCase):
         with self.assertRaises(ServiceDown):
             memcached_status()
 
-    @patch('recommendation.views.status.kombu.Connection.connect')
-    def test_redis_status_pass(self, mock_connect):
+    @patch('recommendation.views.status.Control.ping')
+    def test_redis_status_pass(self, mock_ping):
         redis_status()
         self.assert_(True)
 
-    @patch('recommendation.views.status.kombu.Connection.connect')
-    def test_redis_status_fail(self, mock_connect):
-        mock_connect.side_effect = redis.exceptions.ConnectionError
+    @patch('recommendation.views.status.Control.ping')
+    def test_redis_status_fail(self, mock_ping):
+        mock_ping.side_effect = RedisError
         with self.assertRaises(ServiceDown):
             redis_status()
 
     @patch('recommendation.views.status.Control.ping')
     def test_celery_status_pass(self, mock_ping):
-        mock_ping.return_value = CELERY_PING_OK
+        mock_ping.return_value = MEMCACHED_PING_OK
         celery_status()
         self.assert_(True)
 
     @patch('recommendation.views.status.Control.ping')
-    def test_celery_status_no_clusters(self, mock_ping):
-        mock_ping.return_value = CELERY_PING_NO_CLUSTERS
+    def test_celery_status_no_workers(self, mock_ping):
+        mock_ping.return_value = MEMCACHED_PING_NO_WORKERS
         with self.assertRaises(ServiceDown):
             celery_status()
 
     @patch('recommendation.views.status.Control.ping')
-    def test_celery_status_broker_down(self, mock_ping):
-        mock_ping.side_effect = redis.exceptions.ConnectionError
-        celery_status()
-        self.assert_(True)
+    def test_celery_status_no_clusters(self, mock_ping):
+        mock_ping.return_value = MEMCACHED_PING_NO_CLUSTERS
+        with self.assertRaises(ServiceDown):
+            celery_status()
+
+    @patch('recommendation.views.status.Control.ping')
+    def test_celery_status_workers_down(self, mock_ping):
+        mock_ping.return_value = MEMCACHED_PING_BAD
+        with self.assertRaises(ServiceDown):
+            celery_status()

@@ -1,11 +1,9 @@
 from os import path
 
-import kombu
-import redis
 from celery.app.control import Control
 from flask import Blueprint, jsonify, send_file
+from redis.exceptions import ConnectionError as RedisConnectionError
 
-from recommendation import conf
 from recommendation.memcached import memcached
 from recommendation.views.static import STATIC_DIR
 
@@ -39,29 +37,31 @@ def memcached_status():
 def redis_status():
     """
     Raises ServiceDown if the Redis server used as a celery broker is down.
+    Since our application should not have access to the Redis server, we test
+    this by instantiating a Celery Control and attempting to ping it.
     """
-    cxn = kombu.Connection(conf.CELERY_BROKER_URL)
+    from recommendation.factory import create_queue
     try:
-        cxn.connect()
-    except redis.exceptions.ConnectionError:
+        Control(app=create_queue()).ping(timeout=1)
+    except RedisConnectionError:
         raise ServiceDown()
-    else:
-        cxn.close()
 
 
 def celery_status():
     """
-    Raises ServiceDown if there are no Celery workers available.
+    Raises ServiceDown if any Celery worker servers are down, if any clusters
+    have no workers, or if any workers are down.
     """
     from recommendation.factory import create_queue
-    control = Control(app=create_queue())
-    try:
-        if not control.ping():
+    clusters = Control(app=create_queue()).ping(timeout=1)
+    if not clusters:
+        raise ServiceDown()
+    for cluster in clusters:
+        if not cluster:
             raise ServiceDown()
-
-    # Redis connection errors will be handled by `redis_status`.
-    except redis.exceptions.ConnectionError:
-        pass
+        for host, status in cluster.items():
+            if 'ok' not in status or status['ok'] != 'pong':
+                raise ServiceDown()
 
 
 @status.route('/__heartbeat__')
