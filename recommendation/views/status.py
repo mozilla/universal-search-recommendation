@@ -1,11 +1,9 @@
 from os import path
 
-import kombu
-import redis
 from celery.app.control import Control
 from flask import Blueprint, jsonify, send_file
+from redis.exceptions import ConnectionError as RedisConnectionError
 
-from recommendation import conf
 from recommendation.memcached import memcached
 from recommendation.views.static import STATIC_DIR
 
@@ -36,32 +34,32 @@ def memcached_status():
         raise ServiceDown()
 
 
-def redis_status():
+def redis_status(app):
     """
     Raises ServiceDown if the Redis server used as a celery broker is down.
+    Since our application should not have access to the Redis server, we test
+    this by instantiating a Celery Control and attempting to ping it.
     """
-    cxn = kombu.Connection(conf.CELERY_BROKER_URL)
     try:
-        cxn.connect()
-    except redis.exceptions.ConnectionError:
+        Control(app=app).ping(timeout=1)
+    except RedisConnectionError:
         raise ServiceDown()
-    else:
-        cxn.close()
 
 
-def celery_status():
+def celery_status(app):
     """
-    Raises ServiceDown if there are no Celery workers available.
+    Raises ServiceDown if any Celery worker servers are down, if any clusters
+    have no workers, or if any workers are down.
     """
-    from recommendation.factory import create_queue
-    control = Control(app=create_queue())
-    try:
-        if not control.ping():
+    clusters = Control(app=app).ping(timeout=1)
+    if not clusters:
+        raise ServiceDown()
+    for cluster in clusters:
+        if not cluster:
             raise ServiceDown()
-
-    # Redis connection errors will be handled by `redis_status`.
-    except redis.exceptions.ConnectionError:
-        pass
+        for host, status in cluster.items():
+            if 'ok' not in status or status['ok'] != 'pong':
+                raise ServiceDown()
 
 
 @status.route('/__heartbeat__')
@@ -72,8 +70,13 @@ def heartbeat():
     empty body.
     """
     celery, memcached, redis = True, True, True
+
+    # create an shared celery app for testing
+    from recommendation.factory import create_queue
+    app = create_queue()
+
     try:
-        celery_status()
+        celery_status(app)
     except ServiceDown:
         celery = False
     try:
@@ -81,9 +84,13 @@ def heartbeat():
     except ServiceDown:
         memcached = False
     try:
-        redis_status()
+        redis_status(app)
     except ServiceDown:
         redis = False
+
+    # close any opened connections to broker
+    app.close()
+
     return jsonify({
         'celery': celery,
         'memcached': memcached,
