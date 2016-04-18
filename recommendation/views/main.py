@@ -1,5 +1,3 @@
-import hashlib
-
 from flask import (abort, after_this_request, current_app, Blueprint, jsonify,
                    request)
 
@@ -21,14 +19,11 @@ def view():
             response.headers['Cache-Control'] = 'no-cache, must-revalidate'
         return response
 
-    from recommendation.tasks.task_recommend import recommend
+    from recommendation.tasks.task_recommend import make_key, recommend
     query = request.args.get('q')
     if not query:
         abort(400)
-    key = '_'.join([
-        conf.KEY_PREFIX,
-        hashlib.md5(str(query).encode('utf-8')).hexdigest()
-    ])
+    key = make_key(query)
 
     try:
         response = memcached.get(key)
@@ -37,7 +32,7 @@ def view():
             return jsonify({e.__class__.__name__: e.args}), 500
         return jsonify({}), 500
     if not response:
-        recommend.delay(query, key)
+        recommend.delay(query)
         return jsonify({}), 202
     else:
         return jsonify(response), 200
