@@ -2,6 +2,8 @@ from os import environ as env
 
 
 DEBUG = env.get('RECOMMENDATION_ENV', 'development') == 'development'
+TESTING = env.get('RECOMMENDATION_TESTING', None) == 'true'
+
 KEY_PREFIX = env.get('RECOMMENDATION_KEY_PREFIX', 'query_')
 
 CACHE_TTL = env.get('RECOMMENDATION_CACHE_TTL', 7 * 24 * 60 * 60)

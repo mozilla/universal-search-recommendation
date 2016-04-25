@@ -37,8 +37,9 @@ def create_app():
     app.logger.setLevel(INFO)
 
     # Use logging middleware.
-    app.before_request(request_timer)
-    app.after_request(request_summary)
+    if not conf.TESTING:
+        app.before_request(request_timer)
+        app.after_request(request_summary)
 
     app.config.update(
         CELERY_BROKER_URL=conf.CELERY_BROKER_URL,

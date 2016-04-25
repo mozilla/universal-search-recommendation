@@ -13,7 +13,8 @@ case "$1" in
     test)
         echo "Running Tests"
         cd ..
-        flake8 . --exclude=./recommendation/views/data/dummy.py && nosetests
+        flake8 . --exclude=./recommendation/views/data/dummy.py
+        RECOMMENDATION_TESTING=true nosetests
         ;;
     *)
         echo "Usage: $0 {web|worker|test}"
