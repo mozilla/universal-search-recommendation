@@ -54,6 +54,7 @@ class TestYahooClassifier(TestCase):
         ok_(len(query_string['oauth_signature']))
         ok_(len(query_string['oauth_timestamp']))
         ok_(len(query_string['oauth_version']))
+        eq_(query_string['filter'], ['-porn'])
         eq_(query_string['q'][0], QUERY)
 
     @patch('recommendation.memorize.memcached', mock_memcached)
