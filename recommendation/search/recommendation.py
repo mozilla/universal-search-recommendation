@@ -52,7 +52,10 @@ class SearchRecommendation(object):
         Passed the full list of search suggestion results, returns the
         suggestion to be used.
         """
-        return suggestions[0]
+        try:
+            return suggestions[0]
+        except IndexError:
+            return self.query
 
     def do_query(self, query):
         """
@@ -84,5 +87,6 @@ class SearchRecommendation(object):
         self.top_suggestion = self.get_top_suggestion(self.suggestions)
         self.result = self.do_query(self.top_suggestion)
         self.classifiers = self.get_classifiers(self.result)
-        return self.get_recommendation(
+        self.recommendation = self.get_recommendation(
             self.query, self.top_suggestion, self.classifiers, self.result)
+        return self.recommendation

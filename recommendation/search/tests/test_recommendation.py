@@ -20,6 +20,7 @@ from recommendation.tests.memcached import mock_memcached
 
 
 QUERY = 'Cubs'
+SUGGESTIONS = ['a', 'b', 'c']
 
 
 class TestSearchRecommendation(TestCase):
@@ -63,6 +64,10 @@ class TestSearchRecommendation(TestCase):
 
     def test_get_top_suggestion(self):
         eq_(self.instance.get_top_suggestion(BING_RESULTS), BING_RESULTS[0])
+
+    def test_get_top_suggestion_empty(self):
+        self.instance.query = QUERY
+        eq_(self.instance.get_top_suggestion([]), QUERY)
 
     @patch('recommendation.search.recommendation.SearchRecommendation'
            '.get_query_engine')
