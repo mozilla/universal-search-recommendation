@@ -12,7 +12,7 @@ queue = create_queue()
 def make_key(query):
     return '_'.join([
         conf.KEY_PREFIX,
-        hashlib.md5(str(query).encode('utf-8')).hexdigest()
+        hashlib.md5(str(query).lower().encode('utf-8')).hexdigest()
     ])
 
 

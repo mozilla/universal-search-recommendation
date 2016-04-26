@@ -22,6 +22,9 @@ class TestRecommendTask(TestCase):
         ok_(make_key(QUERY).startswith(KEY))
         eq_(make_key(QUERY), make_key(QUERY))
 
+    def test_key_case_insensitive(self):
+        eq_(make_key('AaA'), make_key('aaa'), make_key('AAA'))
+
     @patch('recommendation.search.recommendation.SearchRecommendation'
            '.do_search')
     @patch('recommendation.tasks.task_recommend.make_key')
