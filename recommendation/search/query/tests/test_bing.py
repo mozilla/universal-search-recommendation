@@ -1,5 +1,7 @@
+import json
 from unittest import TestCase
 from unittest.mock import patch
+from urllib.parse import parse_qs, urlparse
 
 import responses
 from nose.tools import eq_, ok_
@@ -39,8 +41,12 @@ class TestBingClassifier(TestCase):
     @patch('recommendation.memorize.memcached', mock_memcached)
     @responses.activate
     def test_fetch(self):
-        responses.add(responses.GET, BingQueryEngine.url,
-                      json=MOCK_RESPONSE, status=200)
+        def request_callback(request):
+            eq_(parse_qs(urlparse(request.url).query)['Adult'], ['Strict'])
+            return 200, {}, json.dumps(MOCK_RESPONSE)
+
+        responses.add_callback(responses.GET, BingQueryEngine.url,
+                               callback=request_callback)
         response_cold = self.instance.fetch(QUERY)
         response_warm = self.instance.fetch(QUERY)
         ok_(not response_cold.from_cache)

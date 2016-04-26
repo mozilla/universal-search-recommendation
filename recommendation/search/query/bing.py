@@ -16,6 +16,7 @@ class BingQueryEngine(BaseQueryEngine):
         auth = ('', conf.BING_ACCOUNT_KEY)
         params = {
             'Query': '\'%s\'' % query,
+            'Adult': 'Strict',
             '$top': 20,
             '$format': 'JSON'
         }
