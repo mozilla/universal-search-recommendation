@@ -26,4 +26,8 @@ CMD ["web"]
 
 COPY . /app
 
+# symlink version object to serve /__version__ endpoint
+RUN rm /app/recommendation/static/version.json ; \
+    ln -s /app/version.json /app/recommendation/static/version.json
+
 USER app
