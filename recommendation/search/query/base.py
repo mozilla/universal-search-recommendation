@@ -34,7 +34,7 @@ class BaseQueryEngine(object):
         Passed a JSON response from this query engine's API, sanitizes and
         normalizes those results, returning a list of them.
         """
-        return results
+        return [self.sanitize_result(result) for result in results]
 
     def get_best_result(self, results):
         """
@@ -95,7 +95,7 @@ class BaseQueryEngine(object):
 
         This should not need to be subclassed.
         """
-        results = self.fetch(query)
-        sanitized_results = self.sanitize_response(results)
+        all_results = self.fetch(query)
+        sanitized_results = self.sanitize_response(all_results)
         best_result = self.get_best_result(sanitized_results)
-        return self.sanitize_result(best_result)
+        return best_result, sanitized_results

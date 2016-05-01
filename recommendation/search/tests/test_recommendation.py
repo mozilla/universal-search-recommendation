@@ -3,10 +3,9 @@ from unittest.mock import patch
 
 from nose.tools import eq_, ok_
 
-from recommendation.search.classification.logo import LogoClassifier
-from recommendation.search.classification.embedly import (FaviconClassifier,
-                                                          KeyImageClassifier)
-from recommendation.search.classification.tests.test_logo import DOMAIN
+from recommendation.search.classification.embedly import FaviconClassifier
+from recommendation.search.classification.tests.test_tld import DOMAIN
+from recommendation.search.classification.tld import TLDClassifier
 from recommendation.search.recommendation import SearchRecommendation
 from recommendation.search.suggest.base import BaseSuggestionEngine
 from recommendation.search.suggest.bing import BingSuggestionEngine
@@ -38,17 +37,17 @@ class TestSearchRecommendation(TestCase):
         engine = self.instance.get_query_engine()
         ok_(issubclass(engine, BaseQueryEngine))
 
-    @patch('recommendation.search.classification.logo.LogoClassifier'
+    @patch('recommendation.search.classification.tld.TLDClassifier'
            '.is_match')
     def test_get_classifiers(self, mock_match):
         mock_match.return_value = True
-        classifiers = self.instance.get_classifiers({
+        RESULT = {
             'url': 'http://%s/' % DOMAIN
-        })
-        eq_(len(classifiers), 3)
+        }
+        classifiers = self.instance.get_classifiers(RESULT, [RESULT])
+        eq_(len(classifiers), 2)
 
-        classifier_classes = [FaviconClassifier, KeyImageClassifier,
-                              LogoClassifier]
+        classifier_classes = [FaviconClassifier, TLDClassifier]
         for index, classifier in enumerate(classifiers):
             ok_(isinstance(classifier, classifier_classes[index]))
         return classifiers
@@ -94,18 +93,18 @@ class TestSearchRecommendation(TestCase):
         suggestions = BING_RESULTS
         top_suggestion = BING_RESULTS[0]
         result = YAHOO_RESPONSE['bossresponse']['web']['results'][0]
-        classifiers = [LogoClassifier(result)]
+        classifiers = [TLDClassifier(result, [result])]
 
         mock_suggestions.return_value = suggestions
         mock_top_suggestion.return_value = top_suggestion
-        mock_result.return_value = result
+        mock_result.return_value = result, [result]
         mock_classifiers.return_value = classifiers
 
         search = self.instance.do_search(QUERY)
 
         ok_(all([k in search for k in ['enhancements', 'query', 'result']]))
         eq_(list(search['enhancements'].keys()), [c.type for c in classifiers])
-        eq_(search['enhancements']['logo'], classifiers[0].enhance())
+        eq_(search['enhancements']['tld'], classifiers[0].enhance())
         eq_(search['query']['completed'], top_suggestion)
         eq_(search['query']['original'], QUERY)
         eq_(search['result'], result)

@@ -51,11 +51,12 @@ class BaseClassifier(object):
     """
     type = None
 
-    def __init__(self, result):
-        self.result = result
-        self.url = urlparse(result['url'])
+    def __init__(self, best_result, all_results):
+        self.best_result = best_result
+        self.all_results = all_results
+        self.url = urlparse(best_result['url'])
 
-    def is_match(self, result):
+    def is_match(self, best_result, all_results):
         """
         Returns a boolean indicating whether or not the passed result should be
         enhanced by this class.
