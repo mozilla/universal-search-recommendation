@@ -4,7 +4,9 @@ from unittest.mock import MagicMock, patch
 
 from nose.tools import eq_, ok_
 
-from recommendation.mozlog.middleware import request_summary, request_timer
+from recommendation.mozlog.middleware import (LOG_PATH_BLACKLIST,
+                                              request_summary,
+                                              request_timer)
 from recommendation.tests.util import AppTestCase
 
 
@@ -53,6 +55,14 @@ class TestMozLogMiddleware(AppTestCase):
 
     def _predicates(self, query):
         return self._query(query)[0]['predicates']
+
+    def test_blacklist(self):
+        with patch('recommendation.mozlog.middleware.current_app') as app:
+            mock_request = self._request(path=LOG_PATH_BLACKLIST[0])
+            mock_response = self._response()
+            with patch(REQUEST_PATH, mock_request):
+                request_summary(mock_response)
+            eq_(app.logger.info.call_count, 0)
 
     @patch(REQUEST_PATH)
     def test_request_timer(self, mock_request):
