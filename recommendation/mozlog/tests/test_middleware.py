@@ -54,7 +54,12 @@ class TestMozLogMiddleware(AppTestCase):
         })
 
     def _predicates(self, query):
-        return self._query(query)[0]['predicates']
+        output = self._query(query)[0]
+        return {
+            'query_length': output['predicates__query_length'],
+            'is_protocol': output['predicates__is_protocol'],
+            'is_hostname': output['predicates__is_hostname'],
+        }
 
     def test_blacklist(self):
         with patch('recommendation.mozlog.middleware.current_app') as app:

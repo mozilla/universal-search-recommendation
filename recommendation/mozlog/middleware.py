@@ -40,9 +40,7 @@ def request_summary(response):
     if request.path in LOG_PATH_BLACKLIST:
         return response
 
-    log = {
-        'predicates': {}
-    }
+    log = {}
     query = request.args.get('q')
     data = response.get_data(as_text=True)
     try:
@@ -58,17 +56,20 @@ def request_summary(response):
     log['t'] = request.finish_time - request.start_time
 
     if query:
-        log['predicates']['query_length'] = len(query) > 20
-        log['predicates']['is_protocol'] = (re.match(IS_PROTOCOL, query) is not
-                                            None)
-        log['predicates']['is_hostname'] = (re.match(IS_HOSTNAME, query) is not
-                                            None)
+        log['predicates__query_length'] = len(query) > 20
+        log['predicates__is_protocol'] = (re.match(IS_PROTOCOL, query) is not
+                                          None)
+        log['predicates__is_hostname'] = (re.match(IS_HOSTNAME, query) is not
+                                          None)
 
-    if not any(log['predicates'].values()):
-        log['query'] = query if query else None
-        log['status_code'] = response.status_code
-        classifiers = body.get('enhancements')
-        log['classifiers'] = list(classifiers.keys()) if classifiers else []
+        if not any([log['predicates__query_length'],
+                    log['predicates__is_protocol'],
+                    log['predicates__is_hostname']]):
+            log['query'] = query if query else None
+            log['status_code'] = response.status_code
+            classifiers = body.get('enhancements')
+            log['classifiers'] = (list(classifiers.keys()) if classifiers else
+                                  [])
 
     current_app.logger.info('', extra=log)
 
