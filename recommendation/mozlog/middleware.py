@@ -7,6 +7,13 @@ from flask import current_app, request
 
 IS_PROTOCOL = r'^[^\s]+\:\S'
 IS_HOSTNAME = r'^[^\s]+\.\S'
+LOG_PATH_BLACKLIST = [
+    '/favicon.ico',
+    '/__heartbeat__',
+    '/__lbheartbeat__',
+    '/nginx_status',
+    '/robots.txt'
+]
 
 
 def request_timer():
@@ -29,6 +36,9 @@ def request_summary(response):
     """
     request.finish_time = time.time()
     response.direct_passthrough = False
+
+    if request.path in LOG_PATH_BLACKLIST:
+        return response
 
     log = {
         'predicates': {}
