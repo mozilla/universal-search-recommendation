@@ -56,9 +56,9 @@ class TestMozLogMiddleware(AppTestCase):
     def _predicates(self, query):
         output = self._query(query)[0]
         return {
-            'query_length': output['predicates__query_length'],
-            'is_protocol': output['predicates__is_protocol'],
-            'is_hostname': output['predicates__is_hostname'],
+            'query_length': output['predicates.query_length'],
+            'is_protocol': output['predicates.is_protocol'],
+            'is_hostname': output['predicates.is_hostname'],
         }
 
     def test_blacklist(self):
