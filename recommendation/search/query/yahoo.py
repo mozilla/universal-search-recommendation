@@ -36,4 +36,5 @@ class YahooQueryEngine(BaseQueryEngine):
         return requests.get(self._oauth_url(query)).json()
 
     def sanitize_response(self, results):
-        return results['bossresponse']['web']['results']
+        return super(YahooQueryEngine, self).sanitize_response(
+            results['bossresponse']['web']['results'])

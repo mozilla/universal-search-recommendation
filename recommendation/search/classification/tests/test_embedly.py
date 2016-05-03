@@ -6,13 +6,19 @@ import responses
 from nose.tools import eq_, ok_
 
 from recommendation.search.classification.embedly import (
-    BaseEmbedlyClassifier, FaviconClassifier, KeyImageClassifier)
+    BaseEmbedlyClassifier, FaviconClassifier, WikipediaClassifier)
 from recommendation.tests.memcached import mock_memcached
 
 
 MOCK_API_KEY = '0123456789abcdef'
 MOCK_API_URL = 'http://example.com/api'
 MOCK_RESULT_URL = 'https://www.mozilla.com/en_US'
+
+MOCK_NOT_WIKIPEDIA_URL = MOCK_RESULT_URL
+MOCK_WIKIPEDIA_URL = 'https://en.wikipedia.org/wiki/The_Martian_(Weir_novel)'
+
+MOCK_NOT_WIKIPEDIA_RESULT = {'url': MOCK_NOT_WIKIPEDIA_URL}
+MOCK_WIKIPEDIA_RESULT = {'url': MOCK_WIKIPEDIA_URL}
 
 MOCK_RESPONSE = {
     'app_links': [],
@@ -63,10 +69,14 @@ MOCK_RESPONSE = {
     'type': 'html',
     'url': 'https://en.wikipedia.org/wiki/The_Martian_(Weir_novel)'
 }
-MOCK_IMAGE_RESPONSE = {
-    'height': MOCK_RESPONSE['images'][0]['height'],
-    'url': MOCK_RESPONSE['images'][0]['url'],
-    'width': MOCK_RESPONSE['images'][0]['width'],
+MOCK_WIKIPEDIA_RESPONSE = {
+    'image': {
+        'height': MOCK_RESPONSE['images'][0]['height'],
+        'url': MOCK_RESPONSE['images'][0]['url'],
+        'width': MOCK_RESPONSE['images'][0]['width']
+    },
+    'title': MOCK_RESPONSE['title'],
+    'url': MOCK_RESPONSE['url']
 }
 
 
@@ -82,13 +92,11 @@ class TestBaseEmbedlyClassifier(TestCase):
         }
 
     def _classifier(self, url):
-        return self.classifier_class(self._result(url))
+        result = self._result(url)
+        return self.classifier_class(result, [result])
 
     def _api_url(self, url):
         return self._classifier(url)._api_url(self._result(url)['url'])
-
-    def test_is_match(self):
-        eq_(self._classifier(MOCK_RESULT_URL).is_match(MOCK_RESPONSE), True)
 
     @patch('recommendation.conf.EMBEDLY_API_KEY', MOCK_API_KEY)
     def test_api_url(self):
@@ -118,6 +126,10 @@ class TestBaseEmbedlyClassifier(TestCase):
 
 class TestFaviconClassifier(TestBaseEmbedlyClassifier):
     classifier_class = FaviconClassifier
+
+    def test_is_match(self):
+        eq_(self._classifier(MOCK_RESULT_URL).is_match(MOCK_RESPONSE,
+                                                       [MOCK_RESPONSE]), True)
 
     def test_get_color(self):
         eq_(self._classifier(MOCK_RESULT_URL)._get_color(MOCK_RESPONSE),
@@ -151,26 +163,75 @@ class TestFaviconClassifier(TestBaseEmbedlyClassifier):
         eq_(enhanced, {})
 
 
-class TestKeyImageClassifier(TestBaseEmbedlyClassifier):
-    classifier_class = KeyImageClassifier
+class TestWikipediaClassifier(TestBaseEmbedlyClassifier):
+    classifier_class = WikipediaClassifier
+
+    @patch('recommendation.search.classification.embedly.WikipediaClassifier'
+           '._get_wikipedia_url')
+    def test_is_match(self, mock_get_wikipedia_url):
+        classifier = self._classifier(MOCK_RESULT_URL)
+        mock_get_wikipedia_url.return_value = True
+        eq_(classifier.is_match({}, [{}]), True)
+        mock_get_wikipedia_url.return_value = False
+        eq_(classifier.is_match({}, [{}]), False)
+
+    @patch(('recommendation.search.classification.embedly.WikipediaClassifier'
+            '.LOOK_AT'), 1)
+    def test_get_wikipedia_url_match(self):
+        classifier = self._classifier(MOCK_RESULT_URL)
+        classifier.all_results = [MOCK_WIKIPEDIA_RESULT,
+                                  MOCK_NOT_WIKIPEDIA_RESULT]
+        eq_(classifier._get_wikipedia_url(), MOCK_WIKIPEDIA_URL)
+
+    @patch(('recommendation.search.classification.embedly.WikipediaClassifier'
+            '.LOOK_AT'), 1)
+    def test_get_wikipedia_url_not_match(self):
+        classifier = self._classifier(MOCK_RESULT_URL)
+        classifier.all_results = [MOCK_NOT_WIKIPEDIA_RESULT,
+                                  MOCK_WIKIPEDIA_RESULT]
+        eq_(classifier._get_wikipedia_url(), None)
+
+    @patch(('recommendation.search.classification.embedly.WikipediaClassifier'
+            '.LOOK_AT'), 1)
+    @patch('recommendation.search.classification.embedly.WikipediaClassifier'
+           '._is_wikipedia')
+    def test_get_wikipedia_url_caches(self, mock_is_wikipedia):
+        mock_is_wikipedia.return_value = True
+        classifier = self._classifier(MOCK_RESULT_URL)
+        classifier.all_results = [MOCK_WIKIPEDIA_RESULT]
+
+        # When run once, _is_wikipedia is called appropriately.
+        eq_(classifier._get_wikipedia_url(), classifier.all_results[0]['url'])
+        eq_(mock_is_wikipedia.call_count, 1)
+
+        # When run a second time, _is_wikipedia is not called, but the correct
+        # value is still returned.
+        eq_(classifier._get_wikipedia_url(), classifier.all_results[0]['url'])
+        eq_(mock_is_wikipedia.call_count, 1)
+
+    def test_is_wikipedia(self):
+        classifier = self._classifier(MOCK_RESULT_URL)
+        ok_(classifier._is_wikipedia(MOCK_WIKIPEDIA_URL))
+        ok_(not classifier._is_wikipedia(MOCK_NOT_WIKIPEDIA_URL))
 
     @patch('recommendation.memorize.memcached', mock_memcached)
-    @patch('recommendation.search.classification.embedly.KeyImageClassifier'
+    @patch('recommendation.search.classification.embedly.WikipediaClassifier'
            '._api_url')
     @responses.activate
     def test_enhance(self, mock_api_url):
         mock_api_url.return_value = MOCK_API_URL
         responses.add(responses.GET, MOCK_API_URL, json=MOCK_RESPONSE,
                       status=200)
-        enhanced = self._classifier(MOCK_RESULT_URL).enhance()
-        eq_(enhanced, MOCK_IMAGE_RESPONSE)
+        enhanced = self._classifier(MOCK_WIKIPEDIA_URL).enhance()
+        eq_(enhanced, MOCK_WIKIPEDIA_RESPONSE)
 
-    @patch('recommendation.search.classification.embedly.KeyImageClassifier'
+    @patch('recommendation.search.classification.embedly.WikipediaClassifier'
            '._api_response')
-    @patch('recommendation.search.classification.embedly.KeyImageClassifier'
+    @patch('recommendation.search.classification.embedly.WikipediaClassifier'
            '._get_image')
     def test_enhance_no_images(self, mock_get_image, mock_api_response):
         mock_api_response.return_value = MOCK_RESPONSE
         mock_get_image.side_effect = KeyError
         enhanced = self._classifier(MOCK_RESULT_URL).enhance()
-        eq_(enhanced, {})
+        eq_(enhanced['image'], {})
+        eq_(enhanced['title'], MOCK_RESPONSE['title'])

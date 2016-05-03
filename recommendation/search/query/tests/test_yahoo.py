@@ -77,4 +77,5 @@ class TestYahooClassifier(TestCase):
         results = self.instance.fetch(QUERY)
         sanitized = self.instance.sanitize_response(results)
         eq_(type(sanitized), list)
-        eq_(sanitized[0], MOCK_RESPONSE['bossresponse']['web']['results'][0])
+        eq_(sanitized[0], self.instance.sanitize_result(
+            MOCK_RESPONSE['bossresponse']['web']['results'][0]))

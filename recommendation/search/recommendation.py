@@ -33,13 +33,13 @@ class SearchRecommendation(object):
         """
         return YahooQueryEngine
 
-    def get_classifiers(self, result):
+    def get_classifiers(self, best_result, all_results):
         """
         Returns a list of instances for all applicable classifiers for the
         search.
         """
-        return [i for i in [C(result) for C in CLASSIFIERS]
-                if i.is_match(result)]
+        return [i for i in [C(best_result, all_results) for C in CLASSIFIERS]
+                if i.is_match(best_result, all_results)]
 
     def get_suggestions(self, query):
         """
@@ -59,7 +59,8 @@ class SearchRecommendation(object):
 
     def do_query(self, query):
         """
-        Queries the appropriate search engine, returns the top result.
+        Queries the appropriate search engine, returns a tuple containing both
+        the top result and full result set.
         """
         return self.get_query_engine()(query).search(query)
 
@@ -85,8 +86,10 @@ class SearchRecommendation(object):
         self.query = query
         self.suggestions = self.get_suggestions(query)
         self.top_suggestion = self.get_top_suggestion(self.suggestions)
-        self.result = self.do_query(self.top_suggestion)
-        self.classifiers = self.get_classifiers(self.result)
+        self.best_result, self.all_results = self.do_query(self.top_suggestion)
+        self.classifiers = self.get_classifiers(self.best_result,
+                                                self.all_results)
         self.recommendation = self.get_recommendation(
-            self.query, self.top_suggestion, self.classifiers, self.result)
+            self.query, self.top_suggestion, self.classifiers,
+            self.best_result)
         return self.recommendation

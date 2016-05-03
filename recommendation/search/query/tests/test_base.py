@@ -36,7 +36,8 @@ class TestBaseQueryEngine(TestCase):
             self.instance.fetch(QUERY)
 
     def test_sanitize_response(self):
-        eq_(self.instance.sanitize_response(MOCK_RESULTS), MOCK_RESULTS)
+        eq_(self.instance.sanitize_response(MOCK_RESULTS),
+            [self.instance.sanitize_result(result) for result in MOCK_RESULTS])
 
     def test_get_best_result(self):
         eq_(self.instance.get_best_result(MOCK_RESULTS), MOCK_RESULTS[0])
