@@ -53,7 +53,7 @@ def request_summary(response):
     log['lang'] = request.headers.get('Accept-Language')
     log['method'] = request.method
     log['path'] = request.path
-    log['t'] = request.finish_time - request.start_time
+    log['t'] = (request.finish_time - request.start_time) * 1000 # in ms
 
     if query:
         query = query.lower()
