@@ -56,11 +56,12 @@ def request_summary(response):
     log['t'] = (request.finish_time - request.start_time) * 1000 # in ms
 
     if query:
+        query = query.lower()
         log['predicates.query_length'] = len(query) > 20
         log['predicates.is_protocol'] = (re.match(IS_PROTOCOL, query) is not
-                                          None)
+                                         None)
         log['predicates.is_hostname'] = (re.match(IS_HOSTNAME, query) is not
-                                          None)
+                                         None)
 
         if not any([log['predicates.query_length'],
                     log['predicates.is_protocol'],

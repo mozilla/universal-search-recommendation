@@ -16,7 +16,7 @@ WITH_CLASSIFIERS = {
         'frend': ''
     }
 }
-DUMMY = 'Hello, frend.'
+DUMMY = 'hello, frend.'
 REQUEST_PATH = 'recommendation.mozlog.middleware.request'
 
 
@@ -114,6 +114,11 @@ class TestMozLogMiddleware(AppTestCase):
 
     def test_request_summary_query_too_long(self):
         ok_(self._predicates('q' * 25)['query_length'])
+
+    def test_request_summary_query_uppercase(self):
+        MIXED = 'MiXeD cAsE'
+        output = self._query(MIXED)[0]
+        eq_(output['query'], MIXED.lower())
 
     def test_request_summary_query_is_protocol(self):
         ok_(self._predicates('http://')['is_protocol'])
