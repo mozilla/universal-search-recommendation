@@ -107,7 +107,7 @@ class TestMozLogMiddleware(AppTestCase):
 
     def test_request_summary_t(self):
         output, req, res = self._request_summary()
-        eq_(output['t'], req.finish_time - req.start_time)
+        eq_(output['t'], (req.finish_time - req.start_time) * 1000)
 
     def test_request_summary_predicates_ok(self):
         ok_(not any(self._predicates('the mart').values()))
