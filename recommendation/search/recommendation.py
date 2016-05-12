@@ -16,8 +16,12 @@ class SearchRecommendation(object):
       sequentially determine if they match the result, then enhance the result
       if so.
     """
-    def __init__(self, query):
+    def __init__(self, query, debug=False):
+        self.debug = debug
         self.query = query
+        self.recommendation = None
+        self.suggestion_engine = self.get_suggestion_engine()
+        self.query_engine = self.get_query_engine()
 
     def get_suggestion_engine(self):
         """
@@ -33,6 +37,17 @@ class SearchRecommendation(object):
         """
         return YahooQueryEngine
 
+    def all_classifiers(self, best_result, all_results):
+        """
+        Returns a list of all classifiers, regardless of applicability.
+        """
+        return [{
+            'is_match': i.is_match(best_result, all_results),
+            'name': i.__class__.__name__,
+            'result': (i.enhance() if i.is_match(best_result, all_results)
+                       else None)
+        } for i in [C(best_result, all_results) for C in CLASSIFIERS]]
+
     def get_classifiers(self, best_result, all_results):
         """
         Returns a list of instances for all applicable classifiers for the
@@ -45,7 +60,7 @@ class SearchRecommendation(object):
         """
         Queries the appropriate suggestion engine, returns the results.
         """
-        return self.get_suggestion_engine()(query).search(query)
+        return list(self.suggestion_engine(query).search(query))
 
     def get_top_suggestion(self, suggestions):
         """
@@ -62,7 +77,7 @@ class SearchRecommendation(object):
         Queries the appropriate search engine, returns a tuple containing both
         the top result and full result set.
         """
-        return self.get_query_engine()(query).search(query)
+        return self.query_engine(query).search(query)
 
     def get_recommendation(self, query, suggestion, classifiers, result):
         """
@@ -87,6 +102,9 @@ class SearchRecommendation(object):
         self.suggestions = self.get_suggestions(query)
         self.top_suggestion = self.get_top_suggestion(self.suggestions)
         self.best_result, self.all_results = self.do_query(self.top_suggestion)
+        if self.debug:
+            self.all_classifiers = self.all_classifiers(self.best_result,
+                                                        self.all_results)
         self.classifiers = self.get_classifiers(self.best_result,
                                                 self.all_results)
         self.recommendation = self.get_recommendation(

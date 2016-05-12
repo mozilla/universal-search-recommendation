@@ -33,7 +33,8 @@ class YahooQueryEngine(BaseQueryEngine):
 
     @memorize(prefix='yahoo')
     def fetch(self, query):
-        return requests.get(self._oauth_url(query)).json()
+        response = requests.get(self._oauth_url(query))
+        return response.json()
 
     def sanitize_response(self, results):
         return super(YahooQueryEngine, self).sanitize_response(

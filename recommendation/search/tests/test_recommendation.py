@@ -19,6 +19,9 @@ from recommendation.tests.memcached import mock_memcached
 
 
 QUERY = 'Cubs'
+RESULT = {
+    'url': 'http://%s/' % DOMAIN
+}
 SUGGESTIONS = ['a', 'b', 'c']
 
 
@@ -41,9 +44,6 @@ class TestSearchRecommendation(TestCase):
            '.is_match')
     def test_get_classifiers(self, mock_match):
         mock_match.return_value = True
-        RESULT = {
-            'url': 'http://%s/' % DOMAIN
-        }
         classifiers = self.instance.get_classifiers(RESULT, [RESULT])
         eq_(len(classifiers), 2)
 
@@ -51,6 +51,18 @@ class TestSearchRecommendation(TestCase):
         for index, classifier in enumerate(classifiers):
             ok_(isinstance(classifier, classifier_classes[index]))
         return classifiers
+
+    @patch('recommendation.search.recommendation.CLASSIFIERS', [TLDClassifier])
+    @patch('recommendation.search.classification.tld.TLDClassifier'
+           '.is_match')
+    def test_all_classifiers(self, mock_match):
+        mock_match.return_value = False
+        instance = SearchRecommendation('', debug=True)
+        all_classifiers = instance.all_classifiers(RESULT, [RESULT])
+        eq_(len(all_classifiers), 1)
+        eq_(all_classifiers[0]['name'], TLDClassifier.__name__)
+        eq_(all_classifiers[0]['is_match'], False)
+        eq_(all_classifiers[0]['result'], None)
 
     @patch(('recommendation.search.recommendation.SearchRecommendation'
             '.get_suggestion_engine'))
@@ -79,6 +91,8 @@ class TestSearchRecommendation(TestCase):
         eq_(mock_yahoo.call_count, 1)
 
     @patch('recommendation.search.recommendation.SearchRecommendation'
+           '.all_classifiers')
+    @patch('recommendation.search.recommendation.SearchRecommendation'
            '.get_classifiers')
     @patch('recommendation.search.recommendation.SearchRecommendation'
            '.do_query')
@@ -89,7 +103,8 @@ class TestSearchRecommendation(TestCase):
     @patch('recommendation.memorize.memcached', mock_memcached)
     def test_do_search_get_recommendation(self, mock_suggestions,
                                           mock_top_suggestion, mock_result,
-                                          mock_classifiers):
+                                          mock_classifiers,
+                                          mock_all_classifiers):
         suggestions = BING_RESULTS
         top_suggestion = BING_RESULTS[0]
         result = YAHOO_RESPONSE['bossresponse']['web']['results'][0]
@@ -108,3 +123,7 @@ class TestSearchRecommendation(TestCase):
         eq_(search['query']['completed'], top_suggestion)
         eq_(search['query']['original'], QUERY)
         eq_(search['result'], result)
+        eq_(mock_all_classifiers.call_count, 0)
+
+        SearchRecommendation('', debug=True).do_search('')
+        eq_(mock_all_classifiers.call_count, 1)

@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+  <head>
+    <title>{% if recommendation %}"{{ recommendation.query }}" | {% endif %}Universal Search</title>
+  </head>
+  <body>
+    <header>
+      <h1>Universal Search</h1>
+    </header>
+    <main>
+      <form action="/debug" method="get">
+        <input type="search" name="q" value="{% if recommendation %}{{ recommendation.query }}{% endif %}" />
+        <button type="submit">Search</button>
+      </form>
+      {% if recommendation %}
+        <section>
+          <header>
+            <h2>Suggestion</h2>
+          </header>
+          <dl>
+            <dt>Suggestion Engine</dt>
+            <dd>{{ recommendation.suggestion_engine.__name__ }}</dd>
+            <dt>All Suggestions</dt>
+            <dd><pre>{{ recommendation.suggestions|tojson|safe }}</pre></dd>
+            <dt>Top Suggestion</dt>
+            <dd><pre>{{ recommendation.top_suggestion|tojson|safe }}</pre></dd>
+          </dl>
+        </section>
+        <section>
+          <header>
+            <h2>Query</h2>
+          </header>
+          <dl>
+            <dt>Query Engine</dt>
+            <dd>{{ recommendation.query_engine.__name__ }}</dd>
+            <dt>All Results</dt>
+            <dd><pre>{{ recommendation.all_results|tojson|safe }}</pre></dd>
+            <dt>Top Result</dt>
+            <dd><pre>{{ recommendation.best_result|tojson|safe }}</pre></dd>
+          </dl>
+        </section>
+        <section>
+          <header>
+            <h2>Classification</h2>
+          </header>
+          {% for classifier in recommendation.all_classifiers %}
+            <article>
+              <header>
+                <h3>{{ classifier.name }}</h3>
+              </header>
+              <dl>
+                <dt>Matches</dt>
+                <dd><pre>{{ classifier.is_match|tojson|safe }}</pre></dd>
+                {% if classifier.is_match %}
+                  <dt>Result</dt>
+                  <dd><pre>{{ classifier.result|tojson|safe }}</pre></dd>
+                {% endif %}
+              </dl>
+            </article>
+          {% endfor %}
+        </section>
+        <section>
+          <header>
+            <h2>Response</h2>
+          </header>
+          <pre>{{ recommendation.recommendation|tojson|safe }}</pre>
+        </section>
+      {% endif %}
+    </main>
+    <script src="/static/json-formatter.js"></script>
+    <script>
+      function json() {
+        var blocks = document.getElementsByTagName('pre');
+        console.log('run', blocks.length, blocks);
+        for (var i = 0; i < blocks.length;) {
+            var block = blocks[i];
+            console.log('running', block);
+            var json = new JSONFormatter(JSON.parse(block.innerText), 2).render();
+            block.parentNode.replaceChild(json, block);
+        }
+      }
+      if (document.readyState != 'loading'){
+        console.log('ready');
+        json();
+      } else {
+        console.log('loading');
+        document.addEventListener('DOMContentLoaded', json);
+      }
+    </script>
+  </body>
+</html>

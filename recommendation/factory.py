@@ -8,6 +8,7 @@ from recommendation import conf
 from recommendation.cors import cors_headers
 from recommendation.mozlog.formatter import MozLogFormatter
 from recommendation.mozlog.middleware import request_timer, request_summary
+from recommendation.views.debug import debug
 from recommendation.views.dummy import dummy
 from recommendation.views.main import main
 from recommendation.views.static import static
@@ -22,6 +23,7 @@ def create_app():
 
     # Register views.
     app.register_blueprint(main)
+    app.register_blueprint(debug)
     app.register_blueprint(static)
     app.register_blueprint(status)
 
