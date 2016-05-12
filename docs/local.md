@@ -1,86 +1,60 @@
-## Local Development
+# Local Development
 
 A multiple-container Docker configuration is maintained to support local development.
+
+
+## Architecture
+
+`universal-search-recommendation` is built as a containerized Docker application, but to run it, several additional services are required:
+
+- a [Memcached](http://memcached.org/) cache backend
+- a [Celery](http://www.celeryproject.org/) task queue
+- a [Redis](http://redis.io/) broker for the task queue
+
+A [Compose](https://docs.docker.com/compose/) configuration is included to streamline setup and management of those services for local development. They are run alongside the application container on a single [Docker Machine](https://docs.docker.com/machine/overview/) VM.
+
+
+## Usage
+
+A `./server` utility script is included to streamline use of the Docker containers.
+
+
+### First-time setup
+
+First, run the following script:
+
+```bash
+./server init
+```
+
+This creates a host VM called `universal-search-dev`. Then, it configures a consistent hostname ([universal-search.dev](http://universal-search.dev/)) for local development (requires `sudo`).
+
+You will need to [install Docker Toolbox](https://www.docker.com/products/docker-toolbox) and configure your shell. The script will walk you through it.
 
 
 ### Configuration
 
 Some environment variables are required. Each of those are contained within `.env.dist`, which should be copied to `.env` and populated as appropriate.
 
-
-### Services
-
-`universal-search-recommendation` requires several additional services: a [Memcached](http://memcached.org/) cache backend, a [Celery](http://www.celeryproject.org/) task queue, and a [Redis](http://redis.io/) Celery backend. A [Compose](https://docs.docker.com/compose/) configuration is included to streamline setup and management of those services.
-
-
-#### Set up Docker host.
-
-The first time you set up the services, you must create the Docker host.
-
-- [Install Docker Toolbox](https://www.docker.com/products/docker-toolbox).
-- Create a Docker host:
-
-```bash
-docker-machine create --driver virtualbox universal-search-dev
-```
-
-- Add an entry to your `hosts` file:
-
-```bash
-sudo sh -c "echo $(docker-machine ip universal-search-dev 2>/dev/null) universal-search.dev >> /etc/hosts"
-```
+- `BING_ACCOUNT_KEY` - account key for Bing's [Web Search API](http://datamarket.azure.com/dataset/bing/searchweb).
+- `EMBEDLY_API_KEY` - an API key to access Embedly's [Extract API](http://embed.ly/extract).
+- `YAHOO_OAUTH_KEY` and `YAHOO_OAUTH_SECRET` - authentication credentials for Yahoo's [BOSS Search API](https://developer.yahoo.com/boss/search/).
 
 
-#### Start services.
+### Development
 
-After the host is set up, you can run each service by:
+Finally, you're ready to go. The `./server` script has a number of additional commands to help out.
 
-```
-docker-machine start universal-search-dev
-eval $(docker-machine env universal-search-dev)
-docker-compose up -d
-```
+- `./server start` - builds and starts the application server and supporting services.
+- `./server stop` - kills and removes the application container, then stops the supporting services.
+- `./server restart` - runs `./server stop`, then `./server start`.
 
-To verify that each service is up, run:
+You can also start, stop, or restart the app or service containers individually:
 
-```bash
-docker-compose ps
-```
+- `./server start app`
+- `./server stop app`
+- `./server restart app`
+- `./server start services`
+- `./server stop services`
+- `./server restart services`
 
-In the output you should see containers named `recommendation_memcached_1`, `recommendation_redis_1`, and `recommendation_worker_1`. The state for each of these should be `Up`.
-
-
-### Application
-
-`universal-search-recommendation` is managed as a Docker container that is separately built from the services, but run on the same host as the services.
-
-To build it:
-
-```bash
-docker build -t universal-search-recommendation .
-```
-
-To run it:
-
-```bash
-docker run -d -e "RECOMMENDATION_SERVICES=`docker-machine ip universal-search-dev`" -p 80:8000/tcp universal-search-recommendation
-```
-
-To verify that the application is running:
-
-```bash
-docker ps --filter ancestor="universal-search-recommendation"
-```
-
-You should see one container running, and its status should begin with `Up`.
-
-
-### Usage
-
-If the application and services are all running, you should be able to access to access the recommendation server at [http://universal-search.dev](http://universal-search.dev). After making changes to the application, you will need to stop it:
-
-```bash
-docker stop $(docker ps --filter ancestor="universal-search-recommendation" --format="{{.ID}}")
-```
-
-Then rebuild and start it back up, per above.
