@@ -12,16 +12,16 @@ dependencies:
 
     # Build the container, using Circle's Docker cache. Only use 1 image per
     # day to keep the cache size down.
-    - I="image-$(date +%j).tgz"; if [[ -e ~/docker/$I ]]; then echo "Loading $I"; gunzip -c ~/docker/$I | docker load; fi
+    - I="image-$(date +%j).gz"; if [[ -e ~/docker/$I ]]; then echo "Loading $I"; pigz -d -c ~/docker/$I | docker load; fi
 
     # Create a version.json file for the app to serve; copy it to the CircleCI
     # artifacts directory for debugging.
     - >
-        printf '{"commit":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}\n' 
-        "$CIRCLE_SHA1" 
-        "`python -c 'from recommendation import VERSION;print(VERSION)'`" 
-        "$CIRCLE_PROJECT_USERNAME" 
-        "$CIRCLE_PROJECT_REPONAME" 
+        printf '{"commit":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}\n'
+        "$CIRCLE_SHA1"
+        "`python -c 'from recommendation import VERSION;print(VERSION)'`"
+        "$CIRCLE_PROJECT_USERNAME"
+        "$CIRCLE_PROJECT_REPONAME"
         "$CIRCLE_BUILD_URL"
         > version.json
     - cp version.json $CIRCLE_ARTIFACTS
@@ -31,8 +31,7 @@ dependencies:
     - docker images --no-trunc | awk '/^app/ {print $3}' | tee $CIRCLE_ARTIFACTS/docker-image-shasum256.txt
 
     # Clean up any old images; save the new one.
-    - I="image-$(date +%j).tgz"; mkdir -p ~/docker; rm ~/docker/*; docker save app:build | gzip -c > ~/docker/$I; ls -l ~/docker
-
+    - I="image-$(date +%j).gz"; mkdir -p ~/docker; rm ~/docker/*; docker save app:build | pigz --fast -c > ~/docker/$I; ls -l ~/docker
 
 # Run flake8 and the Python test suite via nose.
 test:
