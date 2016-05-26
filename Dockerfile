@@ -10,12 +10,13 @@ RUN addgroup -g 10001 app && \
 
 WORKDIR /app
 
-RUN apk add --update libmemcached-dev zlib-dev
+# Run the web service by default.
+ENTRYPOINT ["/app/conf/run.sh"]
+CMD ["web"]
 
 COPY ./requirements.txt /app/requirements.txt
 
-# install depenencies, cleanup and add libstdc++ back in since
-# we the app needs to link to it
+# install dependencies, cleanup
 RUN apk add --update build-base libmemcached-dev zlib-dev linux-headers && \
     pip install --upgrade --no-cache-dir pip && \
     pip install --upgrade --no-cache-dir -r requirements.txt && \
@@ -23,10 +24,6 @@ RUN apk add --update build-base libmemcached-dev zlib-dev linux-headers && \
 
 ENV PYTHONPATH $PYTHONPATH:/app
 EXPOSE 8000
-
-# Run the web service by default.
-ENTRYPOINT ["/app/conf/run.sh"]
-CMD ["web"]
 
 COPY . /app
 
