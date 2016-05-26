@@ -5,6 +5,7 @@ import requests
 from recommendation import conf
 from recommendation.memorize import memorize
 from recommendation.search.classification.base import BaseClassifier
+from recommendation.util import image_url
 
 
 class BaseEmbedlyClassifier(BaseClassifier):
@@ -54,7 +55,7 @@ class FaviconClassifier(BaseEmbedlyClassifier):
             return {}
         return {
             'color': self._get_color(api_data),
-            'url': favicon_url,
+            'url': image_url(favicon_url, width=32, height=32),
         }
 
 
@@ -128,8 +129,10 @@ class WikipediaClassifier(BaseEmbedlyClassifier):
         try:
             image_data = self._get_image(api_data)
             image = {k: image_data.get(k) for k in ['url', 'height', 'width']}
+            image['url'] = image_url(image['url'])
         except (KeyError, IndexError):
             image = {}
+
         return {
             'image': image,
             'title': self._get_title(api_data),

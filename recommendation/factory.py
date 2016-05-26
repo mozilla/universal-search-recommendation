@@ -10,6 +10,7 @@ from recommendation.mozlog.formatter import MozLogFormatter
 from recommendation.mozlog.middleware import request_timer, request_summary
 from recommendation.views.debug import debug
 from recommendation.views.dummy import dummy
+from recommendation.views.images import images
 from recommendation.views.main import main
 from recommendation.views.static import static
 from recommendation.views.status import status
@@ -24,6 +25,7 @@ def create_app():
     # Register views.
     app.register_blueprint(main)
     app.register_blueprint(debug)
+    app.register_blueprint(images)
     app.register_blueprint(static)
     app.register_blueprint(status)
 
@@ -45,7 +47,8 @@ def create_app():
 
     app.config.update(
         CELERY_BROKER_URL=conf.CELERY_BROKER_URL,
-        DEBUG=conf.DEBUG
+        DEBUG=conf.DEBUG,
+        SERVER_NAME=conf.SERVER_NAME
     )
     return app
 

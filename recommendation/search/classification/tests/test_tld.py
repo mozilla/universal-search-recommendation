@@ -1,4 +1,3 @@
-from unittest import TestCase
 from unittest.mock import patch
 from urllib.parse import ParseResult
 
@@ -6,6 +5,8 @@ import responses
 from nose.tools import eq_, ok_
 
 from recommendation.search.classification.tld import TLDClassifier
+from recommendation.tests.util import AppTestCase
+from recommendation.util import image_url
 
 
 DOMAIN = 'www.mozilla.com'
@@ -13,7 +14,7 @@ URL = 'http://%s/' % DOMAIN
 LOGO = 'https://logo.clearbit.com/%s' % DOMAIN
 
 
-class TestTLDClassifier(TestCase):
+class TestTLDClassifier(AppTestCase):
     def _result(self, url):
         return {
             'url': url
@@ -71,4 +72,4 @@ class TestTLDClassifier(TestCase):
         mock_logo_exists.return_value = False
         eq_(self._enhance(URL), None)
         mock_logo_exists.return_value = True
-        eq_(self._enhance(URL), LOGO)
+        eq_(self._enhance(URL), image_url(LOGO, width=64, height=64))

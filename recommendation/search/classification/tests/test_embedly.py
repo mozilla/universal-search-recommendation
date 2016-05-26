@@ -1,4 +1,3 @@
-from unittest import TestCase
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
 
@@ -8,6 +7,8 @@ from nose.tools import eq_, ok_
 from recommendation.search.classification.embedly import (
     BaseEmbedlyClassifier, FaviconClassifier, WikipediaClassifier)
 from recommendation.tests.memcached import mock_memcached
+from recommendation.tests.util import AppTestCase
+from recommendation.util import image_url
 
 
 MOCK_API_KEY = '0123456789abcdef'
@@ -80,7 +81,7 @@ MOCK_WIKIPEDIA_RESPONSE = {
 }
 
 
-class TestBaseEmbedlyClassifier(TestCase):
+class TestBaseEmbedlyClassifier(AppTestCase):
     classifier_class = BaseEmbedlyClassifier
 
     def tearDown(self):
@@ -149,7 +150,8 @@ class TestFaviconClassifier(TestBaseEmbedlyClassifier):
                       status=200)
         enhanced = self._classifier(MOCK_RESULT_URL).enhance()
         eq_(enhanced['color'], MOCK_RESPONSE['favicon_colors'][0]['color'])
-        eq_(enhanced['url'], MOCK_RESPONSE['favicon_url'])
+        eq_(enhanced['url'], image_url(
+            MOCK_RESPONSE['favicon_url'], width=32, height=32))
 
     @patch('recommendation.search.classification.embedly.FaviconClassifier'
            '._api_response')
@@ -223,6 +225,8 @@ class TestWikipediaClassifier(TestBaseEmbedlyClassifier):
         responses.add(responses.GET, MOCK_API_URL, json=MOCK_RESPONSE,
                       status=200)
         enhanced = self._classifier(MOCK_WIKIPEDIA_URL).enhance()
+        MOCK_WIKIPEDIA_RESPONSE['image']['url'] = (
+            image_url(MOCK_WIKIPEDIA_RESPONSE['image']['url']))
         eq_(enhanced, MOCK_WIKIPEDIA_RESPONSE)
 
     @patch('recommendation.search.classification.embedly.WikipediaClassifier'

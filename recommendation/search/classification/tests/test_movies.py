@@ -1,5 +1,4 @@
 from copy import copy
-from unittest import TestCase
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
 
@@ -8,6 +7,8 @@ from nose.tools import eq_, ok_
 
 from recommendation.search.classification.movies import MovieClassifier
 from recommendation.tests.memcached import mock_memcached
+from recommendation.tests.util import AppTestCase
+from recommendation.util import image_url
 
 
 IMDB_ID = 'tt0116756'
@@ -54,7 +55,7 @@ MOCK_RESPONSE = {
 }
 
 
-class TestMovieClassifier(TestCase):
+class TestMovieClassifier(AppTestCase):
     def setUp(self):
         self.classifier = MovieClassifier(RESULT_IMDB, [])
 
@@ -125,7 +126,7 @@ class TestMovieClassifier(TestCase):
         eq_(enhanced['title'], MOCK_RESPONSE['Title'])
         eq_(enhanced['year'], MOCK_RESPONSE['Year'])
         eq_(enhanced['plot'], MOCK_RESPONSE['Plot'])
-        eq_(enhanced['poster'], MOCK_RESPONSE['Poster'])
+        eq_(enhanced['poster'], image_url(MOCK_RESPONSE['Poster']))
         eq_(enhanced['rating']['imdb']['stars'], 1.4)
         eq_(enhanced['rating']['imdb']['raw'], 2.8)
         eq_(enhanced['rating']['metacritic']['stars'], 1.2)

@@ -84,7 +84,7 @@ case "$1" in
         docker build -t $APPLICATION .
         docker run -d \
           -e "RECOMMENDATION_SERVICES=`docker-machine ip $MACHINE`" \
-          -p 80:8000/tcp --name="$APPLICATION" $APPLICATION
+          -p 80:8000/tcp --env-file=.env --name="$APPLICATION" $APPLICATION
         ;;
 
       # Builds and starts the services supporting the application container.

@@ -5,6 +5,7 @@ import requests
 
 from recommendation.memorize import memorize
 from recommendation.search.classification.base import BaseClassifier
+from recommendation.util import image_url
 
 
 class MovieClassifier(BaseClassifier):
@@ -93,7 +94,7 @@ class MovieClassifier(BaseClassifier):
             'title': data.get('Title'),
             'year': data.get('Year'),
             'plot': data.get('Plot'),
-            'poster': data.get('Poster'),
+            'poster': image_url(data.get('Poster')),
             'rating': {
                 'imdb': self._score(data.get('imdbRating'), 10),
                 'metacritic': self._score(data.get('Metascore'), 100)

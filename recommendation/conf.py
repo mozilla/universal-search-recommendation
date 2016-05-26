@@ -5,9 +5,11 @@ DEBUG = env.get('RECOMMENDATION_ENV', 'development') == 'development'
 TESTING = env.get('RECOMMENDATION_TESTING', None) == 'true'
 
 KEY_PREFIX = env.get('RECOMMENDATION_KEY_PREFIX', 'query_')
+SERVER_NAME = env.get('RECOMMENDATION_SERVER_NAME', 'universal-search.dev')
 
 CACHE_TTL = int(env.get('RECOMMENDATION_CACHE_TTL', 7 * 24 * 60 * 60))
 MEMCACHED_TTL = int(env.get('RECOMMENDATION_MEMCACHED_TTL', CACHE_TTL))
+IMAGEPROXY_TTL = int(env.get('IMAGEPROXY_TTL', CACHE_TTL))
 
 BING_ACCOUNT_KEY = env.get('BING_ACCOUNT_KEY', '')
 EMBEDLY_API_KEY = env.get('EMBEDLY_API_KEY', '')

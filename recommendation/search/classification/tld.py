@@ -1,6 +1,7 @@
 import requests
 
 from recommendation.search.classification.base import BaseClassifier
+from recommendation.util import image_url
 
 
 class TLDClassifier(BaseClassifier):
@@ -24,4 +25,4 @@ class TLDClassifier(BaseClassifier):
         logo = self._get_logo()
         if not self._logo_exists(logo):
             return None
-        return logo
+        return image_url(logo, width=64, height=64)

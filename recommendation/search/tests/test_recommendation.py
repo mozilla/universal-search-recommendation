@@ -1,4 +1,3 @@
-from unittest import TestCase
 from unittest.mock import patch
 
 from nose.tools import eq_, ok_
@@ -16,6 +15,7 @@ from recommendation.search.query.yahoo import YahooQueryEngine
 from recommendation.search.query.tests.test_yahoo import (
     QUERY as YAHOO_QUERY, MOCK_RESPONSE as YAHOO_RESPONSE)
 from recommendation.tests.memcached import mock_memcached
+from recommendation.tests.util import AppTestCase
 
 
 QUERY = 'Cubs'
@@ -25,7 +25,7 @@ RESULT = {
 SUGGESTIONS = ['a', 'b', 'c']
 
 
-class TestSearchRecommendation(TestCase):
+class TestSearchRecommendation(AppTestCase):
     def setUp(self):
         self.instance = SearchRecommendation('')
 
