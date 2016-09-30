@@ -23,6 +23,7 @@ def make_embedly_url(url, **kwargs):
     qs['animate'] = 'false'
     qs['compresspng'] = 'true'
     qs['key'] = conf.EMBEDLY_API_KEY
+    qs['url'] = url[0]
     return '{}?{}'.format(EMBEDLY_RESIZE, urlencode(qs))
 
 
@@ -30,7 +31,7 @@ def make_embedly_url(url, **kwargs):
 def proxy():
     try:
         url = make_embedly_url(**request.args)
-    except TypeError:
+    except (IndexError, TypeError):
         abort(400)
     try:
         req = requests.get(url, stream=True, timeout=10)
